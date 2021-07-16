@@ -19,16 +19,21 @@
   <dxo-position at="center-top" my="center-top">
   </dxo-position>
   <div *dxTemplate="let data of 'popup-content'">
-    <dx-drop-down-box #dropDownBoxWorflowList [(value)]="workflowSelected.FLOW_NOMB" valueExpr="value"
-      [deferRendering]="false" placeholder="Seleccionar..." [showClearButton]="true" [dataSource]="workflowList">
-      <div *dxTemplate="let data of 'content'">
-        <dx-data-grid [dataSource]="workflowList" [selection]="{ mode: 'single' }" [hoverStateEnabled]="true"
-          [paging]="{ enabled: true, pageSize: 10 }" [filterRow]="{ visible: true }" [scrolling]="{ mode: 'infinite' }"
-          height="100%" [columnAutoWidth]="true" [allowColumnResizing]="true">
-        
-        </dx-data-grid>
-      </div>
-    </dx-drop-down-box>
 
+    <dx-select-box #dropDownBoxWorflowList  [value]="workflowSelected.FLOW_NOMB"
+                      (onValueChanged)="setFlowSelected($event)" [valueExpr]="'FLU_CONT'"
+                      [displayExpr]="'FLU_NOMB'" [dataSource]="workflowList" placeholder="Seleccione"
+                      [showClearButton]="true">
+                      <div *dxTemplate="let data of 'content'">
+                        <dx-data-grid (onRowClick)="workflowSelected.FLOW_NOMB = $event.value"
+                          [dataSource]="workflowList" [selection]="{ mode: 'single' }"
+                          [hoverStateEnabled]="true" [paging]="{ enabled: true, pageSize: 10 }"
+                          [filterRow]="{ visible: true }" [scrolling]="{ mode: 'infinite' }" height="100%"
+                          [columnAutoWidth]="true" [allowColumnResizing]="true">
+                          <dxi-column dataField="FLU_NOMB" caption="Flujo">
+                          </dxi-column>                          
+                        </dx-data-grid>
+                      </div>
+                    </dx-select-box>
   </div>
 </dx-popup>

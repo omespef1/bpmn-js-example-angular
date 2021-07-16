@@ -2,8 +2,11 @@ import { Component, ViewChild, OnInit } from '@angular/core';
 import notify from 'devextreme/ui/notify';
 import { WorkflowService } from './services/workflow.service';
 import { SessionService } from './services/session.service';
-import { DxDropDownBoxComponent } from 'devextreme-angular';
+import { DxDropDownBoxComponent, DxSelectBoxComponent } from 'devextreme-angular';
 import { ConfigService } from './services/config.service';
+import { BehaviorSubject } from 'rxjs';
+import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
+import dxSelectBox from 'devextreme/ui/select_box';
 
 @Component({
   selector: 'app-root',
@@ -11,15 +14,19 @@ import { ConfigService } from './services/config.service';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit  {
-  @ViewChild('dropDownBoxWorflowList', { static: false }) dropDownBoxWorflowList: DxDropDownBoxComponent;
+  @ViewChild('dropDownBoxWorflowList', { static: false }) dropDownBoxWorflowList: DxSelectBoxComponent;
   title = 'bpmn-js-angular';
-  diagramUrl = 'assets/init.xml';
+  diagramUrl = 'https://cdn.staticaly.com/gh/bpmn-io/bpmn-js-examples/dfceecba/starter/diagram.bpmn';
   importError?: Error;
   closeButtonOptions: any;
   openButtonOptions: any;
   popupVisible = false;
   workflowSelected: any = {};
   workflowList: any[]=[];
+  workflowListData: BehaviorSubject<any[]> =  new BehaviorSubject<any[]>([]);
+  isGridBoxOpened: boolean;
+  gridDataSource: any;
+  gridColumns: any = ['FLU_NOMB'];
   items: any[] = [
     { location: 'before', widget: 'dxButton', options: { icon: 'plus', text: 'Nuevo' } },
     {
@@ -85,8 +92,10 @@ export class AppComponent implements OnInit  {
   getWorkflowList() {
     this.WorkflowService.GetWorkFlowByCompany("102").subscribe(resp => {
       if (resp.IsSuccessful) {
-        debugger;
+      debugger;
         this.workflowList = resp.Result;
+
+        this.workflowListData.next(this.workflowList);
       }
     })
 
@@ -96,8 +105,8 @@ export class AppComponent implements OnInit  {
     this.popupVisible = true;
   }
 
-  onRowClick(e) {
-
+  setFlowSelected(e) {
+debugger;
     this.workflowSelected = e.data.value;
     this.dropDownBoxWorflowList.instance.close();
   }
