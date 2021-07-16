@@ -1,0 +1,4 @@
+{
+    "apiSecurityUrl":"https://sevenop.digitalware.co/Api.Security/api/",
+    "apiRwfEditrUrl": "http://localhost/RFWEDITR/api/"
+}

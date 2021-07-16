@@ -2,17 +2,18 @@ import {
   AfterContentInit,
   Component,
   ElementRef,
-  Input,
   OnChanges,
   OnDestroy,
-  Output,
   ViewChild,
   SimpleChanges,
-  EventEmitter
+  Output,
+  EventEmitter,
+  Input
 } from '@angular/core';
 
 import { HttpClient } from '@angular/common/http';
 import { map, switchMap } from 'rxjs/operators';
+import customTranslate from '../../customTranslate/customTranslate';
 
 /**
  * You may include a different variant of BpmnJS:
@@ -41,25 +42,35 @@ import { from, Observable, Subscription } from 'rxjs';
 })
 export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy {
   private bpmnJS: BpmnJS;
-
   @ViewChild('ref', { static: true }) private el: ElementRef;
   @Output() private importDone: EventEmitter<any> = new EventEmitter();
-
   @Input() private url: string;
 
+ 
   constructor(private http: HttpClient) {
+    var customTranslateModule = {
+      translate: ['value', customTranslate]
+    };
 
-    this.bpmnJS = new BpmnJS();
+    this.bpmnJS = new BpmnJS({
+      additionalModules: [
+        customTranslateModule
+      ]
+    });
 
     this.bpmnJS.on('import.done', ({ error }) => {
       if (!error) {
         this.bpmnJS.get('canvas').zoom('fit-viewport');
       }
     });
+
+
   }
 
   ngAfterContentInit(): void {
     this.bpmnJS.attachTo(this.el.nativeElement);
+
+
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -76,7 +87,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
   /**
    * Load diagram from URL and emit completion event
    */
-  loadUrl(url: string): Subscription {
+   loadUrl(url: string): Subscription {
 
     return (
       this.http.get(url, { responseType: 'text' }).pipe(
@@ -98,14 +109,15 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy 
       )
     );
   }
-
   /**
    * Creates a Promise to import the given XML into the current
    * BpmnJS instance, then returns it as an Observable.
    *
    * @see https://github.com/bpmn-io/bpmn-js-callbacks-to-promises#importxml
    */
-  private importDiagram(xml: string): Observable<{warnings: Array<any>}> {
-    return from(this.bpmnJS.importXML(xml) as Promise<{warnings: Array<any>}>);
+  private importDiagram(xml: string): Observable<{ warnings: Array<any> }> {
+    return from(this.bpmnJS.importXML(xml) as Promise<{ warnings: Array<any> }>);
   }
+
+
 }
