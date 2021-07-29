@@ -1,6 +1,7 @@
 {
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
+    "strictTemplates":true,
     "outDir": "../out-tsc/spec",
     "types": [
       "jasmine",

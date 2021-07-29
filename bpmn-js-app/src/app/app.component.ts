@@ -1,70 +1,101 @@
 import { Component, ViewChild, OnInit } from '@angular/core';
-import notify from 'devextreme/ui/notify';
-import { WorkflowService } from './services/workflow.service';
-import { SessionService } from './services/session.service';
-import { DxDropDownBoxComponent, DxSelectBoxComponent } from 'devextreme-angular';
-import { ConfigService } from './services/config.service';
-import { BehaviorSubject } from 'rxjs';
-import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
-import dxSelectBox from 'devextreme/ui/select_box';
-
+// import notify from 'devextreme/ui/notify';
+// import { WorkflowService } from './services/workflow.service';
+// import { SessionService } from './services/session.service';
+// import { DxDropDownBoxComponent, DxSelectBoxComponent } from 'devextreme-angular';
+// import { ConfigService } from './services/config.service';
+// import { BehaviorSubject } from 'rxjs';
+// import { Stage } from './models/bpm/stage';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit  {
-  @ViewChild('dropDownBoxWorflowList', { static: false }) dropDownBoxWorflowList: DxSelectBoxComponent;
-  title = 'bpmn-js-angular';
-  diagramUrl = 'https://cdn.staticaly.com/gh/bpmn-io/bpmn-js-examples/dfceecba/starter/diagram.bpmn';
-  importError?: Error;
-  closeButtonOptions: any;
-  openButtonOptions: any;
-  popupVisible = false;
-  workflowSelected: any = {};
-  workflowList: any[]=[];
-  workflowListData: BehaviorSubject<any[]> =  new BehaviorSubject<any[]>([]);
-  isGridBoxOpened: boolean;
-  gridDataSource: any;
-  gridColumns: any = ['FLU_NOMB'];
-  items: any[] = [
-    { location: 'before', widget: 'dxButton', options: { icon: 'plus', text: 'Nuevo' } },
-    {
-      location: 'before', widget: 'dxButton', options: {
-        icon: 'folder', text: 'Abrir', onClick: () => {
-          this.popupVisible = true;
-        }
-      }
-    },
-    { location: 'before', widget: 'dxButton', options: { icon: 'save', text: 'Guardar' } },
-    { location: 'before', widget: 'dxButton', options: { icon: 'trash', text: 'Borrar' } },
-    { location: 'before', widget: 'dxButton', options: { icon: 'fullscreen', text: 'Centrar' } },
-    { location: 'before', widget: 'dxButton', options: { icon: 'remove', text: 'Cancelar' } }
+//   stagePropesrtiesItems:Stage= new Stage();
+//   @ViewChild('dropDownBoxWorflowList', { static: false }) dropDownBoxWorflowList: DxSelectBoxComponent;
+//   title = 'bpmn-js-angular';
+//   diagramUrl =  'assets/init.xml';
+//   importError?: Error;
+//   closeButtonOptions: any;
+//   openButtonOptions: any;
+//   closeStageFlowButton: any;
+//   setStageFlowButton: any;
+//   flowListpopupVisible = false;
+//   flowStagePropertiesVisible= false;
+//   workflowSelected: any = {};
+//   workflowList: any[]=[];
+//   workflowListData: BehaviorSubject<any[]> =  new BehaviorSubject<any[]>([]);
+//   isGridBoxOpened: boolean;
+//   gridDataSource: any;
+//   gridColumns: any = ['FLU_NOMB'];
+//   priorityItems = [ { text:'Alta', id:'A' } , { text:'Media', id:'M'}, {text:'Baja',id:'B'} ];
+//   calcItems = [ {text:'Generación etapa', id:'G'}, { text:'Final Calendario', id:'C'} ]
+//   calendarItems =[ { text:'Normal', id:'J'}, {text:'De días hábiles', id:'H'} ]
+//   items: any[] = [
+//     { location: 'before', widget: 'dxButton', options: { icon: 'plus', text: 'Nuevo' } },
+//     {
+//       location: 'before', widget: 'dxButton', options: {
+//         icon: 'folder', text: 'Abrir', onClick: () => {
+//           this.flowListpopupVisible = true;
+//         }
+//       }
+//     },
+//     {
+//       location: 'before', widget: 'dxButton', options: {
+//         icon: 'folder', text: 'Propiedades Etapa', onClick: () => {
+//           this.flowStagePropertiesVisible = true;
+//         }
+//       }
+//     },
+//     { location: 'before', widget: 'dxButton', options: { icon: 'save', text: 'Guardar' } },
+//     { location: 'before', widget: 'dxButton', options: { icon: 'trash', text: 'Borrar' } },
+//     { location: 'before', widget: 'dxButton', options: { icon: 'fullscreen', text: 'Centrar' } },
+//     { location: 'before', widget: 'dxButton', options: { icon: 'remove', text: 'Cancelar' } }
 
-  ];
-  constructor(private WorkflowService: WorkflowService, private session: SessionService,private configService:ConfigService ){
+//   ];
+
+
+
 
   
-    this.closeButtonOptions = {
-      text: "Cerrar",
-      icon:'remove',
-      onClick: ()=>  {
-          this.popupVisible = false;
-      }
-  };
-  this.openButtonOptions = {
-    text: "Abrir",
-    icon:'folder',
-    onClick: ()=> {
-        this.popupVisible = false;
-    }
+//   constructor(){
+//     this.closeButtonOptions = {
+//       text: "Cerrar",
+//       icon:'remove',
+//       onClick: ()=>  {
+//           this.flowListpopupVisible = false;
+//       }
+//   };
+//   this.openButtonOptions = {
+//     text: "Abrir",
+//     icon:'folder',
+//     onClick: ()=> {
+//         this.flowListpopupVisible = false;
+//     }
 
-};
+// };
+
+//   this.closeStageFlowButton = {
+//     text: "Cerrar",
+//     icon:'folder',
+//     onClick: ()=> {
+//         this.flowStagePropertiesVisible = false;
+//     }
+
+// };
+// this.setStageFlowButton = {
+//   text: "Cancelar",
+//   icon:'folder',
+//   onClick: ()=> {
+//       this.flowStagePropertiesVisible = false;
+//   }
+
+// };
 
 
 
-
-  }
+//   }
   handleImported(event) {
 
     const {
@@ -81,35 +112,32 @@ export class AppComponent implements OnInit  {
       console.error('Failed to render diagram', error);
     }
 
-    this.importError = error;
+    // this.importError = error;
   }
 
   async ngOnInit(){
-    await this.configService.getAppConfig();
-    this.getWorkflowList();
+   
   }
 
-  getWorkflowList() {
-    this.WorkflowService.GetWorkFlowByCompany("102").subscribe(resp => {
-      if (resp.IsSuccessful) {
-      debugger;
-        this.workflowList = resp.Result;
+//   getWorkflowList() {
+//     this.WorkflowService.GetWorkFlowByCompany("102").subscribe(resp => {
+//       if (resp.IsSuccessful) {
+//         this.workflowList = resp.Result;
 
-        this.workflowListData.next(this.workflowList);
-      }
-    })
+//         this.workflowListData.next(this.workflowList);
+//       }
+//     })
 
-  }
+//   }
 
-  showModalWorkflowList() {
-    this.popupVisible = true;
-  }
+//   showModalWorkflowList() {
+//     this.flowListpopupVisible = true;
+//   }
 
-  setFlowSelected(e) {
-debugger;
-    this.workflowSelected = e.data.value;
-    this.dropDownBoxWorflowList.instance.close();
-  }
+//   setFlowSelected(e) {
+//     this.workflowSelected = e.data.value;
+//     this.dropDownBoxWorflowList.instance.close();
+//   }
 
 
 }

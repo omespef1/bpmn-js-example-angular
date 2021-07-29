@@ -1,1 +1,163 @@
-<div #ref class="diagram-container"></div>
+
+
+
+
+
+<dx-toolbar [items]="items">
+
+</dx-toolbar>
+<div class="diagram-parent">
+  <!-- <app-diagram [url]="diagramUrl" (importDone)="handleImported($event)"></app-diagram> -->
+  <div #ref class="diagram-container">
+</div>
+  <div class="import-error" *ngIf="importError">
+    <strong>Failed to render diagram: </strong>
+    {{ importError.message }}
+  </div>
+</div>
+<dx-popup contentTemplate="popup-content" [width]="'70%'" [height]="400" [showTitle]="true"
+  title="Abrir flujo de trabajo" [dragEnabled]="false" [closeOnOutsideClick]="false" [showCloseButton]="false"
+  container=".dx-viewport" [(visible)]="flowListpopupVisible">
+  <dxi-toolbar-item widget="dxButton" toolbar="bottom" location="before" [options]="closeButtonOptions">
+  </dxi-toolbar-item>
+  <dxi-toolbar-item widget="dxButton" toolbar="bottom" location="after" [options]="openButtonOptions">
+  </dxi-toolbar-item>
+  <dxo-position at="center-top" my="center-top">
+  </dxo-position>
+  <div *dxTemplate="let data of 'popup-content'">
+
+    <dx-select-box #dropDownBoxWorflowList [value]="workflowSelected.FLOW_NOMB"
+      (onValueChanged)="setFlowSelected($event)" [valueExpr]="'FLU_CONT'" [displayExpr]="'FLU_NOMB'"
+      [dataSource]="workflowList" placeholder="Seleccione" [showClearButton]="true">
+      <div *dxTemplate="let data of 'content'">
+        <dx-data-grid (onRowClick)="workflowSelected.FLOW_NOMB = $event.value" [dataSource]="workflowList"
+          [selection]="{ mode: 'single' }" [hoverStateEnabled]="true" [paging]="{ enabled: true, pageSize: 10 }"
+          [filterRow]="{ visible: true }" [scrolling]="{ mode: 'infinite' }" height="100%" [columnAutoWidth]="true"
+          [allowColumnResizing]="true">
+          <dxi-column dataField="FLU_NOMB" caption="Flujo">
+          </dxi-column>
+        </dx-data-grid>
+      </div>
+    </dx-select-box>
+  </div>
+</dx-popup>
+
+
+<dx-popup contentTemplate="popup-content" [width]="'70%'" [height]="'auto'" [showTitle]="true" title="Propiedades Etapa"
+  [dragEnabled]="false" [closeOnOutsideClick]="false" [showCloseButton]="false" container=".dx-viewport"
+  [(visible)]="flowStagePropertiesVisible">
+  <dxi-toolbar-item widget="dxButton" toolbar="bottom" location="before" [options]="closeButtonOptions">
+  </dxi-toolbar-item>
+  <dxi-toolbar-item widget="dxButton" toolbar="bottom" location="after" [options]="setStageFlowButton">
+  </dxi-toolbar-item>
+  <dxo-position at="center-top" my="center-top">
+  </dxo-position>
+  <div *dxTemplate="let data of 'popup-content'">
+
+
+    <dx-form [formData]="stagePropesrtiesItems"   [colCount]="4"  labelLocation="top"
+      >
+      <dxi-item itemType="tabbed" [colSpan]="4">
+        <dxi-tab title="General" [colSpan]="4"  >
+          <dxi-item itemType="group" caption="General" [colCount]="4"  >
+          <dxi-item dataField="ETA_INI" [editorType]="'dxCheckBox'">
+            <dxo-label text="Etapa inicial"></dxo-label>
+          </dxi-item>
+          <dxi-item dataField="ETA_MACC" [editorType]="'dxCheckBox'">
+            <dxo-label text="Múltiples acciones"></dxo-label>
+          </dxi-item>
+          <dxi-item dataField="ETA_EMAI" [editorType]="'dxCheckBox'">
+            <dxo-label text="Usar correo electrónico"></dxo-label>
+          </dxi-item>
+          <dxi-item dataField="ETA_ARCH" [editorType]="'dxCheckBox'">
+            <dxo-label text="Requiere adjuntar archivos"></dxo-label>
+          </dxi-item>
+          <dxi-item dataField="ETA_ASUN" [editorType]="'dxCheckBox'">
+            <dxo-label text="Permitir modificar descripción del caso"></dxo-label>
+          </dxi-item>
+          <dxi-item dataField="ETA_REIB" [editorType]="'dxCheckBox'">
+            <dxo-label text="Requeire identificación biométrica"></dxo-label>
+          </dxi-item>
+          </dxi-item>
+
+          <dxi-item itemType="group" caption="Permisos" [colCount]="4" >
+            <dxi-item dataField="ETA_PDEL" [editorType]="'dxCheckBox'">
+              <dxo-label text="Delegar"></dxo-label>
+            </dxi-item>
+            <dxi-item dataField="ETA_PSEG" [editorType]="'dxCheckBox'">
+              <dxo-label text="Ver seguimiento"></dxo-label>
+            </dxi-item>
+          </dxi-item>
+          <dxi-item itemType="group"  [colCount]="4" >
+          <dxi-item dataField="ETA_PRIO"  [editorType]="'dxSelectBox'" 
+            [editorOptions]="{ valueExpr:'id' ,displayExpr:'text' , items: priorityItems}">
+            <dxo-label text="Prioridad"></dxo-label>
+          </dxi-item>
+          <dxi-item dataField="ETA_CLIM"   [editorType]="'dxSelectBox'"
+            [editorOptions]="{ valueExpr:'id' ,displayExpr:'text' , items: priorityItems}">
+            <dxo-label text="Calendario de días hábiles"></dxo-label>
+          </dxi-item>
+          <dxi-item dataField="ETA_SECU"  >
+            <dxo-label text="Secuencia"></dxo-label>
+          </dxi-item>
+          </dxi-item>
+
+          <dxi-item dataField="ETA_ACOR" [colCount]="4" [editorType]="'dxTextArea'" >
+            <dxo-label text="Asunto"></dxo-label>
+          </dxi-item>
+          <dxi-item dataField="ETA_MTIE" [colCount]="2">
+            <dxo-label text="Método  de control de tiempo y costo "></dxo-label>
+          </dxi-item>
+          <dxi-item dataField="ETA_APAR" [colCount]="2" [editorType]="'dxRadioGroup'" [editorOptions]="{items:calcItems, displayExpr:'text' , valueExpr:'id', layout:'horizontal'}" >
+            <dxo-label text="Cálculo a partir de"></dxo-label>
+          </dxi-item>
+          <dxi-item itemType="group"  [colCount]="4" caption="Duración estimada" >
+            <dxi-item dataField="ETA_DIAS" [editorType]="'dxNumberBox'"  [colCount]="1">
+              <dxo-label text="Días"></dxo-label>
+            </dxi-item>
+            <dxi-item dataField="ETA_HORA" [editorType]="'dxNumberBox'"  [colCount]="1">
+              <dxo-label text="Horas"></dxo-label>
+            </dxi-item>
+            <dxi-item dataField="ETA_DIAM" [editorType]="'dxNumberBox'"  [colCount]="1">
+              <dxo-label text="Minutos"></dxo-label>
+            </dxi-item>
+            <dxi-item dataField="ETA_CREC" [colCount]="1" [editorType]="'dxSelectBox'" [editorOptions]=" { items: calendarItems , displayExpr:'text' , valueExpr:'id' }" >
+              <dxo-label text="En calendario"></dxo-label>
+            </dxi-item>
+          </dxi-item>
+        </dxi-tab>
+        <dxi-tab title="Instructivo" [colSpan]="4">
+          <dxi-item dataField="ETA_INST" [colCount]="4" [editorType]="'dxTextArea'" >
+            <dxo-label text="Instrucciones"></dxo-label>
+          </dxi-item>
+        </dxi-tab>
+        <dxi-tab title="Formulario">
+
+        </dxi-tab>
+        <dxi-tab title="Ejecutores">
+          <dxi-item dataField="ETA_CREC" [colCount]="1" [editorType]="'dxSelectBox'" [editorOptions]=" { items: calendarItems , displayExpr:'text' , valueExpr:'id' }" >
+            <dxo-label text="Tipo de ejecutor de la tarea"></dxo-label>
+          </dxi-item>
+          <dxi-item dataField="ETA_CREC" [colCount]="1" [editorType]="'dxSelectBox'" [editorOptions]=" { items: calendarItems , displayExpr:'text' , valueExpr:'id' }" >
+            <dxo-label text="Criterio de selección"></dxo-label>
+          </dxi-item>
+        </dxi-tab>
+        <dxi-tab title="Delegables">
+
+        </dxi-tab>
+        <dxi-tab title="Seguimiento">
+
+        </dxi-tab>
+        <dxi-tab title="Simulación">
+
+        </dxi-tab>
+        <dxi-tab title="Simulación">
+
+        </dxi-tab>
+      </dxi-item>
+
+    </dx-form>
+
+
+  </div>
+</dx-popup>
