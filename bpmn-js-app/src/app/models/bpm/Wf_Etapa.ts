@@ -1,4 +1,4 @@
-export class Stage {
+export class Wf_Etapa {
 	EMP_CODI: string;
 	FLU_CONT: string;
 	ETA_CONT: string;

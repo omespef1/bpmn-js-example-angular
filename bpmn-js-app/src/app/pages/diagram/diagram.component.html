@@ -26,11 +26,11 @@
   </dxo-position>
   <div *dxTemplate="let data of 'popup-content'">
 
-    <dx-select-box #dropDownBoxWorflowList [value]="workflowSelected.FLOW_NOMB"
+    <dx-select-box #dropDownBoxWorflowList [value]="workflowSelected.FLU_NOMB"
       (onValueChanged)="setFlowSelected($event)" [valueExpr]="'FLU_CONT'" [displayExpr]="'FLU_NOMB'"
       [dataSource]="workflowList" placeholder="Seleccione" [showClearButton]="true">
       <div *dxTemplate="let data of 'content'">
-        <dx-data-grid (onRowClick)="workflowSelected.FLOW_NOMB = $event.value" [dataSource]="workflowList"
+        <dx-data-grid (onRowClick)="workflowSelected.FLU_NOMB = $event.value" [dataSource]="workflowList"
           [selection]="{ mode: 'single' }" [hoverStateEnabled]="true" [paging]="{ enabled: true, pageSize: 10 }"
           [filterRow]="{ visible: true }" [scrolling]="{ mode: 'infinite' }" height="100%" [columnAutoWidth]="true"
           [allowColumnResizing]="true">
@@ -58,7 +58,7 @@
     <dx-form [formData]="stagePropesrtiesItems"   [colCount]="4"  labelLocation="top"
       >
       <dxi-item itemType="tabbed" [colSpan]="4">
-        <dxi-tab title="General" [colSpan]="4"  >
+        <dxi-tab title="General">
           <dxi-item itemType="group" caption="General" [colCount]="4"  >
           <dxi-item dataField="ETA_INI" [editorType]="'dxCheckBox'">
             <dxo-label text="Etapa inicial"></dxo-label>
@@ -126,7 +126,7 @@
             </dxi-item>
           </dxi-item>
         </dxi-tab>
-        <dxi-tab title="Instructivo" [colSpan]="4">
+        <dxi-tab title="Instructivo" >
           <dxi-item dataField="ETA_INST" [colCount]="4" [editorType]="'dxTextArea'" >
             <dxo-label text="Instrucciones"></dxo-label>
           </dxi-item>

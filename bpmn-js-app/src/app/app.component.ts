@@ -5,7 +5,7 @@ import { Component, ViewChild, OnInit } from '@angular/core';
 // import { DxDropDownBoxComponent, DxSelectBoxComponent } from 'devextreme-angular';
 // import { ConfigService } from './services/config.service';
 // import { BehaviorSubject } from 'rxjs';
-// import { Stage } from './models/bpm/stage';
+// import { Stage } from './models/bpm/Wf_Etapa';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -120,7 +120,7 @@ export class AppComponent implements OnInit  {
   }
 
 //   getWorkflowList() {
-//     this.WorkflowService.GetWorkFlowByCompany("102").subscribe(resp => {
+//     this.WorkflowService.getWorkFlowByCompany("102").subscribe(resp => {
 //       if (resp.IsSuccessful) {
 //         this.workflowList = resp.Result;
 

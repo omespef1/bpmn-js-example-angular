@@ -3,7 +3,7 @@ import { DiagramComponent } from './pages/diagram/diagram.component';
 import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 import { AppComponent } from './app.component';
-import { DxDropDownBoxModule, DxFormModule, DxPopupModule, DxSelectBoxModule, DxToolbarModule } from 'devextreme-angular';
+import { DxDataGridModule, DxDropDownBoxModule, DxFormModule, DxPopupModule, DxSelectBoxModule, DxTabsModule, DxToolbarModule } from 'devextreme-angular';
 import { AppRoutingModule } from './app.routing.module';
 import { DxoPositionModule } from 'devextreme-angular/ui/nested';
 
@@ -21,7 +21,9 @@ import { DxoPositionModule } from 'devextreme-angular/ui/nested';
     DxoPositionModule,
     DxDropDownBoxModule,
     DxSelectBoxModule,
-    DxFormModule
+    DxFormModule,
+    DxDataGridModule,
+    DxTabsModule
   ],
   bootstrap: [AppComponent]
 })
