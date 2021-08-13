@@ -43,6 +43,9 @@
 </dx-popup>
 
 
+
+
+<!-- Popup propiedades etapa -->
 <dx-popup contentTemplate="popup-content" [width]="'70%'" [height]="'auto'" [showTitle]="true" title="Propiedades Etapa"
   [dragEnabled]="false" [closeOnOutsideClick]="false" [showCloseButton]="false" container=".dx-viewport"
   [(visible)]="flowStagePropertiesVisible">
@@ -161,3 +164,50 @@
 
   </div>
 </dx-popup>
+
+
+<dx-popup contentTemplate="popup-content-form" [width]="'60%'" [height]="'auto'" [showTitle]="true" title="Nuevo flujo de trabajo"
+  [dragEnabled]="false" [closeOnOutsideClick]="false" [showCloseButton]="false" container=".dx-viewport"
+  [(visible)]="newWorkFlowWindowVisible">
+  <dxi-toolbar-item widget="dxButton" toolbar="bottom" location="before" [options]="closeButtonNewWorkFlowWindow">
+  </dxi-toolbar-item>
+  <dxi-toolbar-item widget="dxButton" toolbar="bottom" location="after" [options]="setNewWorkFlowButton">
+  </dxi-toolbar-item>
+  <dxo-position at="center" my="center">
+  </dxo-position>
+  <div *dxTemplate="let data of 'popup-content-form'">
+
+
+    <dx-form [formData]="newForkFlowForm"   [colCount]="1"  labelLocation="top">
+
+    <dxi-item dataField="FOR_CONT" template="formuTemplate" colSpan="1">
+                        <dxi-validation-rule type="required" message="Requerido"></dxi-validation-rule>
+                        <dxo-label text="Formulario en el cual desea basar el flujo de trabajo">
+                        </dxo-label>
+                      </dxi-item>
+
+                      <div *dxTemplate="let data of 'formuTemplate'">
+                        <dx-drop-down-box #dropDownBoxfbd32edd [(value)]="newForkFlowFormtTemp.FOR_NOMB" valueExpr="value"
+                          [deferRendering]="false" placeholder="Seleccione" [showClearButton]="true"
+                          [dataSource]="formsList">
+                          <div *dxTemplate="let data of 'content'">
+                            <dx-data-grid (onRowClick)="setFormWorkFlowTemp($event)" [dataSource]="formsList"
+                              [selection]="{ mode: 'single' }" [hoverStateEnabled]="true"
+                              [paging]="{ enabled: true, pageSize: 10 }" [filterRow]="{ visible: true }"
+                              [scrolling]="{ mode: 'infinite' }" height="100%" [columnAutoWidth]="true"
+                              [allowColumnResizing]="true">
+                              <dxi-column dataField="FOR_CONT" caption="Código">
+                              </dxi-column>
+                              <dxi-column dataField="FOR_NOMB" caption="Nombre">
+                              </dxi-column>                            
+                            </dx-data-grid>
+                          </div>
+                        </dx-drop-down-box>
+                      </div>
+    </dx-form>
+  </div>
+
+</dx-popup>
+
+
+

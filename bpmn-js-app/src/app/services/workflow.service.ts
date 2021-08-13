@@ -10,17 +10,22 @@ const CONTROLLER = 'WF_FLUJO'
 })
 export class WorkflowService {
 
-  constructor(private http:HttpClient,private configService:ConfigService) { }
+  constructor(private http: HttpClient, private configService: ConfigService) { }
 
-  getWorkFlowByCompany(company:string){
-  return  this.http.get<ActionResult<any[]>>(`${this.configService.config.apiRwfEditrUrl}/${CONTROLLER}?emp_codi=${company}`);
+  getWorkFlowByCompany(company: string) {
+    return this.http.get<ActionResult<any[]>>(`${this.configService.config.apiRwfEditrUrl}/${CONTROLLER}?emp_codi=${company}`);
   }
-  getWorkFlowById(company:number, id:number){
-    let  headers:HttpHeaders = new HttpHeaders();
-headers.append("Access-Control-Allow-Origin","*");
+  getWorkFlowById(company: number, id: number) {
+    let headers: HttpHeaders = new HttpHeaders();
+    headers.append("Access-Control-Allow-Origin", "*");
 
 
-    return  this.http.get<ActionResult<string>>(`${this.configService.config.apiRwfEditrUrl}/${CONTROLLER}/GetById?companyCode=${company}&consecutive=${id}`,{headers});
+    return this.http.get<ActionResult<string>>(`${this.configService.config.apiRwfEditrUrl}/${CONTROLLER}/GetById?companyCode=${company}&consecutive=${id}`, { headers });
+  }
+
+  setWorkFlow(xml:any){
+
+    return this.http.post<ActionResult<string>>(`${this.configService.config.apiRwfEditrUrl}/${CONTROLLER}`,{xml});
   }
 
 
