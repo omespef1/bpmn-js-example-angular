@@ -1,0 +1,92 @@
+{
+    "xml": "
+<?xml version="1.0" encoding="UTF-8"?>n
+<bpmn:definitions
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+	xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+	xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+	xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn">
+	<bpmn:process id="Process_1" isExecutable="false">
+		<bpmn:startEvent id="Event_09q4f3s" name="1">
+			<bpmn:outgoing>Flow_19hjtbk</bpmn:outgoing>
+			<bpmn:outgoing>Flow_0hy2v3j</bpmn:outgoing>
+			<bpmn:outgoing>Flow_07a5b1b</bpmn:outgoing>
+			<bpmn:outgoing>Flow_0qojiz8</bpmn:outgoing>
+		</bpmn:startEvent>
+		<bpmn:intermediateThrowEvent id="Event_1bzvc0o" name="2">
+			<bpmn:incoming>Flow_07a5b1b</bpmn:incoming>
+		</bpmn:intermediateThrowEvent>
+		<bpmn:intermediateThrowEvent id="Event_0e4rvcj" name="3">
+			<bpmn:incoming>Flow_0qojiz8</bpmn:incoming>
+		</bpmn:intermediateThrowEvent>
+		<bpmn:endEvent id="Event_0fyjccx" name="5">
+			<bpmn:incoming>Flow_0hy2v3j</bpmn:incoming>
+		</bpmn:endEvent>
+		<bpmn:endEvent id="Event_1v55yh8" name="4">
+			<bpmn:incoming>Flow_19hjtbk</bpmn:incoming>
+		</bpmn:endEvent>
+		<bpmn:sequenceFlow id="Flow_19hjtbk" sourceRef="Event_09q4f3s" targetRef="Event_1v55yh8" />
+		<bpmn:sequenceFlow id="Flow_0hy2v3j" sourceRef="Event_09q4f3s" targetRef="Event_0fyjccx" />
+		<bpmn:sequenceFlow id="Flow_07a5b1b" sourceRef="Event_09q4f3s" targetRef="Event_1bzvc0o" />
+		<bpmn:sequenceFlow id="Flow_0qojiz8" sourceRef="Event_09q4f3s" targetRef="Event_0e4rvcj" />
+	</bpmn:process>
+	<bpmndi:BPMNDiagram id="BPMNDiagram_1">
+		<bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1">
+			<bpmndi:BPMNEdge id="Flow_19hjtbk_di" bpmnElement="Flow_19hjtbk">
+				<di:waypoint x="658" y="280" />
+				<di:waypoint x="760" y="280" />
+				<di:waypoint x="760" y="370" />
+				<di:waypoint x="872" y="370" />
+			</bpmndi:BPMNEdge>
+			<bpmndi:BPMNEdge id="Flow_0hy2v3j_di" bpmnElement="Flow_0hy2v3j">
+				<di:waypoint x="622" y="280" />
+				<di:waypoint x="535" y="280" />
+				<di:waypoint x="535" y="350" />
+				<di:waypoint x="448" y="350" />
+			</bpmndi:BPMNEdge>
+			<bpmndi:BPMNEdge id="Flow_07a5b1b_di" bpmnElement="Flow_07a5b1b">
+				<di:waypoint x="622" y="280" />
+				<di:waypoint x="555" y="280" />
+				<di:waypoint x="555" y="170" />
+				<di:waypoint x="488" y="170" />
+			</bpmndi:BPMNEdge>
+			<bpmndi:BPMNEdge id="Flow_0qojiz8_di" bpmnElement="Flow_0qojiz8">
+				<di:waypoint x="658" y="280" />
+				<di:waypoint x="740" y="280" />
+				<di:waypoint x="740" y="170" />
+				<di:waypoint x="822" y="170" />
+			</bpmndi:BPMNEdge>
+			<bpmndi:BPMNShape id="Event_1bzvc0o_di" bpmnElement="Event_1bzvc0o">
+				<dc:Bounds x="452" y="152" width="36" height="36" />
+				<bpmndi:BPMNLabel>
+					<dc:Bounds x="467" y="195" width="7" height="14" />
+				</bpmndi:BPMNLabel>
+			</bpmndi:BPMNShape>
+			<bpmndi:BPMNShape id="Event_0e4rvcj_di" bpmnElement="Event_0e4rvcj">
+				<dc:Bounds x="822" y="152" width="36" height="36" />
+				<bpmndi:BPMNLabel>
+					<dc:Bounds x="837" y="195" width="7" height="14" />
+				</bpmndi:BPMNLabel>
+			</bpmndi:BPMNShape>
+			<bpmndi:BPMNShape id="Event_0fyjccx_di" bpmnElement="Event_0fyjccx">
+				<dc:Bounds x="412" y="332" width="36" height="36" />
+				<bpmndi:BPMNLabel>
+					<dc:Bounds x="427" y="375" width="7" height="14" />
+				</bpmndi:BPMNLabel>
+			</bpmndi:BPMNShape>
+			<bpmndi:BPMNShape id="Event_1v55yh8_di" bpmnElement="Event_1v55yh8">
+				<dc:Bounds x="872" y="352" width="36" height="36" />
+				<bpmndi:BPMNLabel>
+					<dc:Bounds x="887" y="395" width="7" height="14" />
+				</bpmndi:BPMNLabel>
+			</bpmndi:BPMNShape>
+			<bpmndi:BPMNShape id="Event_09q4f3s_di" bpmnElement="Event_09q4f3s">
+				<dc:Bounds x="622" y="262" width="36" height="36" />
+				<bpmndi:BPMNLabel>
+					<dc:Bounds x="637" y="305" width="7" height="14" />
+				</bpmndi:BPMNLabel>
+			</bpmndi:BPMNShape>
+		</bpmndi:BPMNPlane>
+	</bpmndi:BPMNDiagram>
+</bpmn:definitions>"

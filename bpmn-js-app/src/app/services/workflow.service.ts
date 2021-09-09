@@ -21,12 +21,17 @@ export class WorkflowService {
 
 
     return this.http.get<ActionResult<string>>(`${this.configService.config.apiRwfEditrUrl}/${CONTROLLER}/GetById?companyCode=${company}&consecutive=${id}`, { headers });
-  }
+  } 
 
   setWorkFlow(xml:any){
 
-    return this.http.post<ActionResult<string>>(`${this.configService.config.apiRwfEditrUrl}/${CONTROLLER}`,{xml});
+console.log('xml es');
+console.log(xml);
+      let data = {  xml:xml.xml }
+    return this.http.post<ActionResult<string>>(`${this.configService.config.apiRwfEditrUrl}/${CONTROLLER}`,data);
   }
+
+  
 
 
 }
