@@ -1,7 +1,16 @@
+import { Wf_Aptos } from './Wf_Aptos';
+import { Wf_Deleg } from './Wf_Deleg';
+import { Wf_Usegu } from './Wf_Usegu';
 export class Wf_Etapa {
+
+	constructor(){
+		this.WF_APTOS = [];
+		this.WF_DELEG = [];
+		this.WF_USEGU = [];
+	}
 	EMP_CODI: string;
-	FLU_CONT: string;
-	ETA_CONT: string;
+	FLU_CONT: number;
+	ETA_CONT: number;
 	ETA_ASUN: string;
 	GAB_CONT: string;
 	ETA_INST: string;
@@ -14,9 +23,10 @@ export class Wf_Etapa {
 	ETA_DLIM: string;
 	ETA_HLIM: string;
 	ETA_CLIM: string;
-	ETA_DREC: string;
+	ETA_DREC: number;
+	ETA_MREC: number;
 	ETA_HREC: string;
-	ETA_CREC: string;
+	ETA_CREC: number;
 	ETA_POSX: string;
 	ETA_POSY: string;
 	ETA_INIC: string;
@@ -63,5 +73,8 @@ export class Wf_Etapa {
 	ETA_DIAM: string;
 	ETA_EDTF: string;
 	ETA_MMES: string;
+	WF_APTOS:Wf_Aptos[];
+	WF_DELEG:Wf_Deleg[];
+	WF_USEGU:Wf_Usegu[];
 
 }
