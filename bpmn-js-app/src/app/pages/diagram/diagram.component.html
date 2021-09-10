@@ -131,6 +131,9 @@
           </dxi-item>
         </dxi-tab>
         <dxi-tab title="Formulario">
+          <dxi-item itemType="button" [buttonOptions]="newFrmasStage"></dxi-item>
+          <dxi-item itemType="button" [buttonOptions]="propertyFrmasStage"></dxi-item>
+          <dxi-item itemType="button" [buttonOptions]="deleteFrmasStage"></dxi-item>
           
         </dxi-tab>
         <dxi-tab title="Ejecutores">
@@ -142,18 +145,18 @@
             [editorOptions]=" { items: criteryExecutors , displayExpr:'text' , valueExpr:'id' }">
             <dxo-label text="Criterio de selección"></dxo-label>
           </dxi-item>
-          <dxi-item itemType="button" [buttonOptions]="setNewAssignamentButton">
+          <dxi-item itemType="button" [buttonOptions]="setNewAssignamentButton" [visible]="stagePropesrtiesItems.ETA_EJEC=='U'">
 
           </dxi-item>
-          <dxi-item itemType="group" caption="Asignados" [colCount]="4">
+          <dxi-item itemType="group" caption="Asignados" [colCount]="4" [visible]="stagePropesrtiesItems.ETA_EJEC=='U'">
 
-            <dxi-item dataField="WF_APTOS" template="aptosTemplate" colSpan="4">
+            <dxi-item dataField="WF_APTOS" template="aptosTemplate" colSpan="4" >
               <dxi-validation-rule type="required" message="Requerido"></dxi-validation-rule>
               <dxo-label text="Asignar">
               </dxo-label>
             </dxi-item>
             <div *dxTemplate="let data of 'aptosTemplate'">
-              <dx-data-grid [dataSource]="stagePropesrtiesItems.WF_APTOS" [selection]="{ mode: 'single' }"
+              <dx-data-grid [dataSource]="stagePropesrtiesItems.WF_APTOS" [selection]="{ mode: 'single' }" 
                 [hoverStateEnabled]="true" [paging]="{ enabled: true, pageSize: 10 }" [filterRow]="{ visible: true }"
                 [scrolling]="{ mode: 'infinite' }" height="100%" [columnAutoWidth]="true" [allowColumnResizing]="true">
                 <dxo-editing [useIcons]="true" [allowDeleting]="true" [confirmDelete]="true">
@@ -173,7 +176,7 @@
          
         </dxi-tab>
         <dxi-tab title="Delegables">      
-        <dxi-item itemType="button" [buttonOptions]="setNewDelegateButton">
+        <dxi-item itemType="button" [buttonOptions]="setNewDelegateButton" >
 
         </dxi-item>
         <dxi-item itemType="group" caption="Asignados" [colCount]="4">
@@ -428,3 +431,33 @@
 
 
 </dx-popup>
+
+
+<!-- popup nueva forma -->
+
+<dx-popup contentTemplate="popup-content-new-frmas" [width]="'60%'" [height]="'50%'" [showTitle]="true"
+  title="Asignar" [dragEnabled]="false" [closeOnOutsideClick]="false" [showCloseButton]="false" container=".dx-viewport"
+  [(visible)]="newFormDetailStageVisible">
+  <dxi-toolbar-item widget="dxButton" toolbar="bottom" location="before" [options]="closeButtonNewFrmas">
+  </dxi-toolbar-item>
+  <dxo-position at="center" my="center">
+  </dxo-position>
+  <div *dxTemplate="let data of 'popup-content-new-frmas'">
+
+
+
+    <dx-data-grid  [dataSource]="formFrmasList" [selection]="{ mode: 'single' }" [hoverStateEnabled]="true"
+      [paging]="{ enabled: true, pageSize: 10 }" [filterRow]="{ visible: true }" [scrolling]="{ mode: 'infinite' }"
+      height="100%" [columnAutoWidth]="true" [allowColumnResizing]="true" [selection]="{ mode: 'single' }"
+      [hoverStateEnabled]="true" [paging]="{ enabled: true, pageSize: 10 }" [filterRow]="{ visible: true }"
+      [scrolling]="{ mode: 'infinite' }" height="100%" [columnAutoWidth]="true" [allowColumnResizing]="true">
+      <dxi-column dataField="FRM_CODI" caption="Código">
+      </dxi-column>
+      <dxi-column dataField="FRM_NOMB" caption="Nombre">
+      </dxi-column>
+    </dx-data-grid>
+  </div>
+
+
+</dx-popup>
+

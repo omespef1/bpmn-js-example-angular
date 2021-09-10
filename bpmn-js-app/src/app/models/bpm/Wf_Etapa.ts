@@ -1,12 +1,14 @@
 import { Wf_Aptos } from './Wf_Aptos';
 import { Wf_Deleg } from './Wf_Deleg';
 import { Wf_Usegu } from './Wf_Usegu';
+import { Wf_Fetap } from './Wf_Fetap';
 export class Wf_Etapa {
 
 	constructor(){
 		this.WF_APTOS = [];
 		this.WF_DELEG = [];
 		this.WF_USEGU = [];
+		this.WF_FETAP=[];
 	}
 	EMP_CODI: string;
 	FLU_CONT: number;
@@ -76,5 +78,6 @@ export class Wf_Etapa {
 	WF_APTOS:Wf_Aptos[];
 	WF_DELEG:Wf_Deleg[];
 	WF_USEGU:Wf_Usegu[];
+	WF_FETAP:Wf_Fetap[];
 
 }

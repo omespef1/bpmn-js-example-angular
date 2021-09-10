@@ -41,6 +41,11 @@ import { UsersService } from '../../services/users.service';
 import { Wf_Aptos } from '../../models/bpm/Wf_Aptos';
 import { Wf_Deleg } from '../../models/bpm/Wf_Deleg';
 import { Wf_Usegu } from '../../models/bpm/Wf_Usegu';
+import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
+import { FormDetailService } from '../../services/form-detail.service';
+import { FormDetail } from '../../models/bpm/Wf_Defor';
+import { Wf_Frmas } from '../../models/bpm/Wf_Frmas';
+import { StageFrmasService } from '../../services/stage-frmas.service';
 
 @Component({
   selector: 'app-diagram',
@@ -57,19 +62,25 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
   closeButtonNewAssignament: any;
   closeButtonNewDelegated: any;
   closeButtonNewFollow: any;
+  closeButtonNewFrmas: any;
   openButtonOptions: any;
   closeStageFlowButton: any;
   setStageFlowButton: any;
   setNewWorkFlowButton: any;
   setNewAssignamentButton: any;
+  newFrmasStage: any;
+  propertyFrmasStage: any;
+  deleteFrmasStage: any;
   setNewDelegateButton: any;
-  setNewFollowButton:any;
+  setNewFollowButton: any;
+  setNewDetalFormButton: any;
   flowListpopupVisible = false;
   flowStagePropertiesVisible = false;
   newWorkFlowWindowVisible = false;
   newAssignamentStageVisible = false;
   newDelegatedStageVisible = false;
   newFollowStageVisible = false;
+  newFormDetailStageVisible = false;
   workflowSelected: Wf_Flujo = new Wf_Flujo();
   newForkFlowFormtTemp: Wf_Formu = new Wf_Formu();
   newForkFlowForm: Wf_Formu = new Wf_Formu();
@@ -84,9 +95,11 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
   usertsToAsign: Wf_Aptos[] = [];
   delegateToAsign: Wf_Deleg[] = [];
   followToAsign: Wf_Usegu[] = [];
+  formsDetailToAsig: FormDetail[] = [];
+  formFrmasList: Wf_Frmas[] = [];
   calcItems = [{ text: 'Generación etapa', id: 'G' }, { text: 'Final Calendario', id: 'C' }]
   calendarItems = [{ text: 'Normal', id: 'J' }, { text: 'De días hábiles', id: 'H' }]
-  executorsItems = [{ text: 'Usuarios/Roles', id: 'U' }, { text: 'Iniciador del proceso', id: 'U' },
+  executorsItems = [{ text: 'Usuarios/Roles', id: 'U' }, { text: 'Iniciador del proceso', id: 'I' },
   { text: 'Tarea Anterior', id: 'N' }, { text: 'Plantilla', id: 'P' }];
 
   rolesCompany: any[] = [];
@@ -148,7 +161,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
   @Input() private url: string;
 
   constructor(private http: HttpClient, private WorkflowService: WorkflowService, private session: SessionService, private configService: ConfigService,
-    private formsService: FormService, private rolesService: RolesService, private usersService: UsersService) {
+    private formsService: FormService, private rolesService: RolesService, private usersService: UsersService,
+    private formDetailService: FormDetailService, private stageFrmasService: StageFrmasService) {
     var customTranslateModule = {
       translate: ['value', customTranslate]
     };
@@ -217,7 +231,14 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
         this.newDelegatedStageVisible = false;
       }
     };
-    
+    this.closeButtonNewFrmas = {
+      text: "Cerrar",
+      icon: 'remove',
+      onClick: () => {
+        this.newFormDetailStageVisible = false;
+      }
+    };
+
     this.openButtonOptions = {
       text: "Abrir",
       icon: 'folder',
@@ -236,8 +257,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
 
     };
     this.setStageFlowButton = {
-      text: "Cancelar",
-      icon: 'folder',
+      text: "Aplicar",
+      icon: 'check',
       onClick: () => {
         this.flowStagePropertiesVisible = false;
       }
@@ -261,6 +282,39 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
       }
 
     };
+
+    this.newFrmasStage = {
+      text: "Nuevo",
+      icon: 'plus',
+      width:'140px',  
+      onClick: () => {
+        this.newFormDetailStageVisible = true;
+      }
+
+    };
+
+    this.propertyFrmasStage = {
+      text: "Propiedad",
+      icon: 'floppy',
+      disabled:true,
+      width:'140px',  
+      onClick: () => {
+        // implementar
+      }
+
+    };
+
+
+    this.deleteFrmasStage = {
+      text: "Borrar",
+      icon: 'deleterow',    
+     width:'140px',  
+      disabled:true,
+      onClick: () => {
+        // implementar
+      }
+
+    };
     this.setNewDelegateButton = {
       text: "Asignar",
       icon: 'plus',
@@ -274,13 +328,21 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
       text: "Asignar",
       icon: 'plus',
       onClick: () => {
-        this.newFollowStageVisible= true;
+        this.newFollowStageVisible = true;
 
       }
 
     };
 
+    this.setNewDetalFormButton = {
+      text: "Nuevo",
+      icon: 'plus',
+      onClick: () => {
+        this.newFormDetailStageVisible = true;
 
+      }
+
+    };
 
   }
   handleImported(event) {
@@ -325,6 +387,15 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
       }
     })
 
+  }
+
+  getFormFrmas() {
+    this.stageFrmasService.getWfFrmas(this.workflowSelected.FOR_CONT).subscribe(resp => {
+      if (resp.IsSuccessful && resp.Result != null) {
+
+        this.formFrmasList = resp.Result;
+      }
+    })
   }
 
   getUsertsToAsign() {
@@ -383,6 +454,15 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
     })
   }
 
+
+  getFormsDetail(for_cont) {
+
+    this.formDetailService.GetDetailFormList(for_cont).subscribe(resp => {
+      if (resp.IsSuccessful && resp.Result != null) {
+        this.formsDetailToAsig = resp.Result;
+      }
+    })
+  }
 
   showModalWorkflowList() {
     this.flowListpopupVisible = true;
@@ -776,6 +856,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
 
   setFormWorkFlowTemp(e) {
     this.newForkFlowFormtTemp = e.data;
+    this.workflowSelected.FOR_CONT = e.data.FOR_CONT;
+    this.getFormFrmas();
     this.dropdownNewWorkFlowFormu.instance.close();
   }
 
@@ -791,6 +873,10 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
   addNewFollow(e) {
     this.stagePropesrtiesItems.WF_USEGU.push(e.data);
     this.newFollowStageVisible = false;
+  }
+  addNewFormDetail(e) {
+    this.stagePropesrtiesItems.WF_FETAP.push(e.data);
+    this.newFormDetailStageVisible = false;
   }
   setFormWorkFlow() {
     this.bpmnJS.importXML(this.emptyXml);
