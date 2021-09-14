@@ -130,11 +130,55 @@
             <dxo-label text="Instrucciones"></dxo-label>
           </dxi-item>
         </dxi-tab>
-        <dxi-tab title="Formulario">
-          <dxi-item itemType="button" [buttonOptions]="newFrmasStage"></dxi-item>
-          <dxi-item itemType="button" [buttonOptions]="propertyFrmasStage"></dxi-item>
-          <dxi-item itemType="button" [buttonOptions]="deleteFrmasStage"></dxi-item>
-          
+        <dxi-tab title="Formulario">          
+          <dxi-item dataField="WF_FETAP" template="fetapTemplate" >
+            <dxi-validation-rule type="required" message="Requerido"></dxi-validation-rule>
+            <dxo-label text="Formas">
+            </dxo-label>
+          </dxi-item>
+          <div *dxTemplate="let data of 'fetapTemplate'">
+            <dx-data-grid [dataSource]="stagePropesrtiesItems.WF_FETAP" [selection]="{ mode: 'single' }" 
+              [hoverStateEnabled]="true" [paging]="{ enabled: true, pageSize: 10 }" [filterRow]="{ visible: true }"
+              [scrolling]="{ mode: 'infinite' }" height="100%" [columnAutoWidth]="true" [allowColumnResizing]="true">
+              <dxo-editing [mode]="'form'" [useIcons]="true" [allowDeleting]="true" [allowUpdating]="true" [confirmDelete]="true">
+                <dxo-texts deleteRow="Eliminar" cancelAllChanges="Cancelar cambios" saveRowChanges="Guardar"
+                  cancelRowChanges="Cancelar" confirmDeleteMessage="¿Está seguro de borrar este registro?">
+                </dxo-texts>
+              </dxo-editing>
+              <dxi-column dataField="FRM_CODI" caption="Forma">
+                <dxo-lookup
+                    [dataSource]="wfFormasList"
+                    valueExpr="FRM_CODI"
+                    displayExpr="FRM_NOMB">
+                </dxo-lookup>
+            </dxi-column>   
+            <dxi-column dataField="FET_SDIN" caption="Siempre debe diligenciar información">
+              <dxo-lookup
+                  [dataSource]="yesNoItems"
+                  valueExpr="id"
+                  displayExpr="text">
+              </dxo-lookup>
+          </dxi-column>  
+          <dxi-column dataField="FET_DELE" caption="Permite modificar">
+            <dxo-lookup
+                [dataSource]="yesNoItems"
+                valueExpr="id"
+                displayExpr="text">
+            </dxo-lookup>
+        </dxi-column> 
+        <dxi-column dataField="PLA_CONT" caption="Plantilla" [visible]="isTemplate(data)">
+          <dxo-lookup
+              [dataSource]="wfPlantItems"
+              valueExpr="PLA_CONT"
+              displayExpr="PLA_DESC">
+          </dxo-lookup>
+      </dxi-column>                 
+             
+            </dx-data-grid>
+          </div>
+          <dxi-item itemType="button" [buttonOptions]="newFrmasStage" ></dxi-item>
+          <dxi-item itemType="button" [buttonOptions]="propertyFrmasStage"  ></dxi-item>
+          <dxi-item itemType="button" [buttonOptions]="deleteFrmasStage"  ></dxi-item>
         </dxi-tab>
         <dxi-tab title="Ejecutores">
           <dxi-item dataField="ETA_EJEC" [colSpan]="1" [editorType]="'dxSelectBox'"
@@ -314,9 +358,9 @@
 
       <div *dxTemplate="let data of 'formuTemplate'">
         <dx-drop-down-box #dropDownBoxfbd32edd [(value)]="newForkFlowFormtTemp.FOR_NOMB" valueExpr="value"
-          [deferRendering]="false" placeholder="Seleccione" [showClearButton]="true" [dataSource]="formsList">
+          [deferRendering]="false" placeholder="Seleccione" [showClearButton]="true" [dataSource]="wfFormuList">
           <div *dxTemplate="let data of 'content'">
-            <dx-data-grid (onRowClick)="setFormWorkFlowTemp($event)" [dataSource]="formsList"
+            <dx-data-grid (onRowClick)="setFormWorkFlowTemp($event)" [dataSource]="wfFormuList"
               [selection]="{ mode: 'single' }" [hoverStateEnabled]="true" [paging]="{ enabled: true, pageSize: 10 }"
               [filterRow]="{ visible: true }" [scrolling]="{ mode: 'infinite' }" height="100%" [columnAutoWidth]="true"
               [allowColumnResizing]="true">
@@ -446,7 +490,7 @@
 
 
 
-    <dx-data-grid  [dataSource]="formFrmasList" [selection]="{ mode: 'single' }" [hoverStateEnabled]="true"
+    <dx-data-grid  [dataSource]="wfFormasList" [selection]="{ mode: 'single' }" [hoverStateEnabled]="true"
       [paging]="{ enabled: true, pageSize: 10 }" [filterRow]="{ visible: true }" [scrolling]="{ mode: 'infinite' }"
       height="100%" [columnAutoWidth]="true" [allowColumnResizing]="true" [selection]="{ mode: 'single' }"
       [hoverStateEnabled]="true" [paging]="{ enabled: true, pageSize: 10 }" [filterRow]="{ visible: true }"

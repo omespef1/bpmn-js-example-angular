@@ -4,11 +4,11 @@ import { Wf_Usegu } from './Wf_Usegu';
 import { Wf_Fetap } from './Wf_Fetap';
 export class Wf_Etapa {
 
-	constructor(){
+	constructor() {
 		this.WF_APTOS = [];
 		this.WF_DELEG = [];
 		this.WF_USEGU = [];
-		this.WF_FETAP=[];
+		this.WF_FETAP = [{ EMP_CODI: 102, PLA_CONT: 0, AUD_UFAC: new Date(), AUD_ESTA: "A", FET_DEFU: "S", FET_DELE: "S", FET_INSE: "S", FET_ORDE: 0, FET_SDIN: "S", FLU_CONT: 0, ETA_CONT: 0, FRM_CODI: 'SCMCOTIZ', FOR_CONT: 0, AUD_USUA: '' }];
 	}
 	EMP_CODI: string;
 	FLU_CONT: number;
@@ -75,9 +75,9 @@ export class Wf_Etapa {
 	ETA_DIAM: string;
 	ETA_EDTF: string;
 	ETA_MMES: string;
-	WF_APTOS:Wf_Aptos[];
-	WF_DELEG:Wf_Deleg[];
-	WF_USEGU:Wf_Usegu[];
-	WF_FETAP:Wf_Fetap[];
+	WF_APTOS: Wf_Aptos[];
+	WF_DELEG: Wf_Deleg[];
+	WF_USEGU: Wf_Usegu[];
+	WF_FETAP: Wf_Fetap[];
 
 }

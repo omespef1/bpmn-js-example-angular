@@ -12,7 +12,7 @@ export class FormService {
 
 
 
-  GetFormsList(){
+  getwfFormuList(){
     return  this.http.get<ActionResult<any[]>>(`${this.configService.config.apiRwfEditrUrl}/${CONTROLLER}?`);
   }
 }

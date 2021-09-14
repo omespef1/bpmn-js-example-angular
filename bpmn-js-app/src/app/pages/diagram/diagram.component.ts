@@ -46,6 +46,8 @@ import { FormDetailService } from '../../services/form-detail.service';
 import { FormDetail } from '../../models/bpm/Wf_Defor';
 import { Wf_Frmas } from '../../models/bpm/Wf_Frmas';
 import { StageFrmasService } from '../../services/stage-frmas.service';
+import { Wf_Plant } from '../../models/bpm/Wf_Plant';
+import { WfPlantService } from '../../services/wfplant.service';
 
 @Component({
   selector: 'app-diagram',
@@ -85,22 +87,24 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
   newForkFlowFormtTemp: Wf_Formu = new Wf_Formu();
   newForkFlowForm: Wf_Formu = new Wf_Formu();
   @ViewChild("dropDownBoxfbd32edd") dropdownNewWorkFlowFormu: DxDropDownBoxComponent;
-  formsList: Wf_Formu[] = [];
+  wfFormuList: Wf_Formu[] = [];
   workflowList: any[] = [];
   workflowListData: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
   isGridBoxOpened: boolean;
   gridDataSource: any;
   gridColumns: any = ['FLU_NOMB'];
   priorityItems = [{ text: 'Alta', id: 'A' }, { text: 'Media', id: 'M' }, { text: 'Baja', id: 'B' }];
+  wfPlantItems: Wf_Plant[] = [];
   usertsToAsign: Wf_Aptos[] = [];
   delegateToAsign: Wf_Deleg[] = [];
   followToAsign: Wf_Usegu[] = [];
   formsDetailToAsig: FormDetail[] = [];
-  formFrmasList: Wf_Frmas[] = [];
+  wfFormasList: Wf_Frmas[] = [];
   calcItems = [{ text: 'Generación etapa', id: 'G' }, { text: 'Final Calendario', id: 'C' }]
   calendarItems = [{ text: 'Normal', id: 'J' }, { text: 'De días hábiles', id: 'H' }]
   executorsItems = [{ text: 'Usuarios/Roles', id: 'U' }, { text: 'Iniciador del proceso', id: 'I' },
   { text: 'Tarea Anterior', id: 'N' }, { text: 'Plantilla', id: 'P' }];
+  yesNoItems = [{ id: 'S', text: 'Si' }, { id: 'N', text: 'No' }];
 
   rolesCompany: any[] = [];
   usersCompany: any[] = [];
@@ -162,7 +166,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
 
   constructor(private http: HttpClient, private WorkflowService: WorkflowService, private session: SessionService, private configService: ConfigService,
     private formsService: FormService, private rolesService: RolesService, private usersService: UsersService,
-    private formDetailService: FormDetailService, private stageFrmasService: StageFrmasService) {
+    private formDetailService: FormDetailService, private stageFrmasService: StageFrmasService,
+    private wfPlantService: WfPlantService) {
     var customTranslateModule = {
       translate: ['value', customTranslate]
     };
@@ -286,7 +291,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
     this.newFrmasStage = {
       text: "Nuevo",
       icon: 'plus',
-      width:'140px',  
+      width: '140px',
       onClick: () => {
         this.newFormDetailStageVisible = true;
       }
@@ -296,8 +301,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
     this.propertyFrmasStage = {
       text: "Propiedad",
       icon: 'floppy',
-      disabled:true,
-      width:'140px',  
+      disabled: true,
+      width: '140px',
       onClick: () => {
         // implementar
       }
@@ -307,9 +312,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
 
     this.deleteFrmasStage = {
       text: "Borrar",
-      icon: 'deleterow',    
-     width:'140px',  
-      disabled:true,
+      icon: 'deleterow',
+      width: '140px',
+      disabled: true,
       onClick: () => {
         // implementar
       }
@@ -367,14 +372,15 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
   async ngOnInit() {
     await this.configService.getAppConfig();
     this.getWorkflowList();
-    this.GetFormList();
+    this.GetWfFormu();
     this.getUsertsToAsign();
+    this.getWfPlant();
 
   }
-  GetFormList() {
-    this.formsService.GetFormsList().subscribe(resp => {
+  GetWfFormu() {
+    this.formsService.getwfFormuList().subscribe(resp => {
       if (resp.IsSuccessful && resp.Result != null) {
-        this.formsList = resp.Result;
+        this.wfFormuList = resp.Result;
       }
     })
   }
@@ -389,11 +395,21 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
 
   }
 
+  getWfPlant() {
+    this.wfPlantService.getByCompany(102).subscribe(resp => {
+      if (resp.IsSuccessful && resp.Result != null) {
+
+        this.wfPlantItems = resp.Result;
+
+      }
+    })
+  }
+
   getFormFrmas() {
     this.stageFrmasService.getWfFrmas(this.workflowSelected.FOR_CONT).subscribe(resp => {
       if (resp.IsSuccessful && resp.Result != null) {
 
-        this.formFrmasList = resp.Result;
+        this.wfFormasList = resp.Result;
       }
     })
   }
@@ -885,6 +901,14 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
 
   setNewAssignament() {
 
+  }
+
+  isTemplate(data) {
+    debugger;
+    if (data.indexOf('CWFFPLAN') > -1) {
+      return true;
+    }
+    else return false;
   }
 
 }
