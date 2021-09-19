@@ -37,11 +37,14 @@
   </div>
 </dx-popup>
 
+<div id="js-properties-panel">
 
+  
+</div>
 
 
 <!-- Popup propiedades etapa -->
-<dx-popup contentTemplate="popup-content" [width]="'70%'" [height]="'auto'" [showTitle]="true" title="Propiedades Etapa"
+<dx-popup contentTemplate="popup-content" [width]="'70%'" [height]="'auto'" [showTitle]="true" [title] ="stagePropesrtiesItems.ETA_ASUN"
   [dragEnabled]="false" [closeOnOutsideClick]="false" [showCloseButton]="false" container=".dx-viewport"
   [(visible)]="flowStagePropertiesVisible">
   <dxi-toolbar-item widget="dxButton" toolbar="bottom" location="before" [options]="closeButtonOptions">
@@ -57,7 +60,7 @@
       <dxi-item itemType="tabbed" [colSpan]="4">
         <dxi-tab title="General">
           <dxi-item itemType="group" caption="General" [colCount]="4">
-            <dxi-item dataField="ETA_INI" [editorType]="'dxCheckBox'">
+            <dxi-item dataField="ETA_INIC" [editorType]="'dxCheckBox'">
               <dxo-label text="Etapa inicial"></dxo-label>
             </dxi-item>
             <dxi-item dataField="ETA_MACC" [editorType]="'dxCheckBox'">
@@ -69,7 +72,7 @@
             <dxi-item dataField="ETA_ARCH" [editorType]="'dxCheckBox'">
               <dxo-label text="Requiere adjuntar archivos"></dxo-label>
             </dxi-item>
-            <dxi-item dataField="ETA_ASUN" [editorType]="'dxCheckBox'">
+            <dxi-item dataField="ETA_MASU" [editorType]="'dxCheckBox'">
               <dxo-label text="Permitir modificar descripción del caso"></dxo-label>
             </dxi-item>
             <dxi-item dataField="ETA_REIB" [editorType]="'dxCheckBox'">
@@ -99,7 +102,7 @@
             </dxi-item>
           </dxi-item>
 
-          <dxi-item dataField="ETA_ACOR" [colCount]="4" [editorType]="'dxTextArea'">
+          <dxi-item dataField="ETA_ASUN" [colCount]="4" [editorType]="'dxTextArea'">
             <dxo-label text="Asunto"></dxo-label>
           </dxi-item>
           <dxi-item dataField="ETA_MTIE" [colCount]="2">
@@ -166,7 +169,7 @@
                 displayExpr="text">
             </dxo-lookup>
         </dxi-column> 
-        <dxi-column dataField="PLA_CONT" caption="Plantilla" [visible]="isTemplate(data)">
+        <dxi-column dataField="PLA_CONT" caption="Plantilla">
           <dxo-lookup
               [dataSource]="wfPlantItems"
               valueExpr="PLA_CONT"
@@ -334,8 +337,9 @@
 
 <div>
 
-  {{stagePropesrtiesItems | json}}
+  
 </div>
+<!-- popup nuevo formulario -->
 <dx-popup contentTemplate="popup-content-form" [width]="'60%'" [height]="'auto'" [showTitle]="true"
   title="Nuevo flujo de trabajo" [dragEnabled]="false" [closeOnOutsideClick]="false" [showCloseButton]="false"
   container=".dx-viewport" [(visible)]="newWorkFlowWindowVisible">
@@ -505,3 +509,44 @@
 
 </dx-popup>
 
+<!-- popup nuevo subproceso -->
+<dx-popup contentTemplate="popup-content-form" [width]="'60%'" [height]="'auto'" [showTitle]="true"
+  title="Nuevo flujo de trabajo" [dragEnabled]="false" [closeOnOutsideClick]="false" [showCloseButton]="false"
+  container=".dx-viewport" [(visible)]="newSubprocessVisible">
+  <dxi-toolbar-item widget="dxButton" toolbar="bottom" location="before" [options]="closeButtonNewSubprocesswWindow">
+  </dxi-toolbar-item>
+  <dxi-toolbar-item widget="dxButton" toolbar="bottom" location="after" [options]="setNewSubprocessButton">
+  </dxi-toolbar-item>
+  <dxo-position at="center" my="center">
+  </dxo-position>
+  <div *dxTemplate="let data of 'popup-content-form'">
+
+
+    <dx-form [formData]="newSubprocess" [colCount]="1" labelLocation="top">
+
+      <dxi-item dataField="flu_nomb" template="newProcessTemplate" colSpan="1">
+        <dxi-validation-rule type="required" message="Requerido"></dxi-validation-rule>
+        <dxo-label text="Flujo destino">
+        </dxo-label>
+      </dxi-item>
+
+      <div *dxTemplate="let data of 'newProcessTemplate'">
+        <dx-drop-down-box #dropDownBoxaec8150b [(value)] = "newSubprocess.flu_nomb" [valueExpr]="newSubprocess.flu_cont" [displayExpr] ="newSubprocess.flu_nomb" 
+          [deferRendering]="false" placeholder="Seleccione" [showClearButton]="true" [dataSource]="subProcessFlowList">
+          <div *dxTemplate="let data of 'content'">
+            <dx-data-grid (onRowClick)="setNewSubprocess($event)" [dataSource]="subProcessFlowList"
+              [selection]="{ mode: 'single' }" [hoverStateEnabled]="true" [paging]="{ enabled: true, pageSize: 10 }"
+              [filterRow]="{ visible: true }" [scrolling]="{ mode: 'infinite' }" height="100%" [columnAutoWidth]="true"
+              [allowColumnResizing]="true">
+              <dxi-column dataField="FLU_CONT" caption="Código">
+              </dxi-column>
+              <dxi-column dataField="FLU_NOMB" caption="Nombre">
+              </dxi-column>
+            </dx-data-grid>
+          </div>
+        </dx-drop-down-box>
+      </div>
+    </dx-form>
+  </div>
+
+</dx-popup>

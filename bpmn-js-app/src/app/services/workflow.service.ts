@@ -23,13 +23,19 @@ export class WorkflowService {
     return this.http.get<ActionResult<string>>(`${this.configService.config.apiRwfEditrUrl}/${CONTROLLER}/GetById?companyCode=${company}&consecutive=${id}`, { headers });
   }
 
-  setWorkFlow(xml: any) {
 
+  getForSubprocess(company: number, id: number){
+    return this.http.get<ActionResult<Wf_Flujo[]>>(`${this.configService.config.apiRwfEditrUrl}/${CONTROLLER}/GetSubprocessList?companyCode=${company}&consecutive=${id}`);
+  }
+  setWorkFlow(xml: any, diagram:any) {
+    
     console.log('xml es');
     console.log(xml);
-    let data = { xml: xml.xml }
+    let data = { xml: xml.xml, diagram: diagram }
     return this.http.post<ActionResult<string>>(`${this.configService.config.apiRwfEditrUrl}/${CONTROLLER}`, data);
   }
+
+
 
 
 
