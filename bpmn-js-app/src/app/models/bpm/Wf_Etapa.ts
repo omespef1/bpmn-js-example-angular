@@ -2,6 +2,7 @@ import { Wf_Aptos } from './Wf_Aptos';
 import { Wf_Deleg } from './Wf_Deleg';
 import { Wf_Usegu } from './Wf_Usegu';
 import { Wf_Fetap } from './Wf_Fetap';
+import { Wf_Desti } from './Wf_Desti';
 export class Wf_Etapa {
 
 	constructor() {
@@ -20,7 +21,7 @@ export class Wf_Etapa {
 		this.ETA_DLIM= 1;
 		this.ETA_HLIM= new Date();
 		this.ETA_CLIM= "J";
-		this.ETA_DREC= 0;
+		this.ETA_DREC= 1;
 		this.ETA_MREC= 0;
 		this.ETA_HREC= new Date();
 		this.ETA_CREC= "J";
@@ -29,8 +30,8 @@ export class Wf_Etapa {
 		this.ETA_INIC= "";
 		this.ETA_SECS= 0;
 		this.ETA_RECO= "N";
-		this.AUD_ESTA= "";
-		this.AUD_USUA= "A";
+		this.AUD_ESTA= "A";
+		this.AUD_USUA= "";
 		this.AUD_UFAC= new Date();
 		this.ETA_MACC= "N";
 		this.CCA_CONT= "";
@@ -60,7 +61,7 @@ export class Wf_Etapa {
 		this.ETA_ACOR= "";
 		this.ETA_MCOR= "";
 		this.ETA_ARCH= "N";
-		this.ETA_EJEC= "";
+		this.ETA_EJEC= "U";
 		this.ETA_TPLA= "";
 		this.ETA_PERI= "";
 		this.ETA_DESD= new Date();
@@ -74,6 +75,7 @@ export class Wf_Etapa {
 			this.WF_DELEG=[];
 			this.WF_USEGU=[];
 			this.WF_FETAP=[];
+			this.WF_DESTI=[];
 	}
 	EMP_CODI: string;
 	FLU_CONT: number;
@@ -144,5 +146,7 @@ export class Wf_Etapa {
 	WF_DELEG: Wf_Deleg[];
 	WF_USEGU: Wf_Usegu[];
 	WF_FETAP: Wf_Fetap[];
+	WF_DESTI: Wf_Desti[];
+
 
 }
