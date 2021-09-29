@@ -10,6 +10,9 @@
     {{ importError.message }}
   </div>
 </div>
+<div>
+  {{wfWebseItems | json }}
+</div>
 <dx-popup contentTemplate="popup-content" [width]="'70%'" [height]="400" [showTitle]="true" [showCloseButton]="true"
   title="Abrir flujo de trabajo" [dragEnabled]="false" [closeOnOutsideClick]="false" [showCloseButton]="false"
   container=".dx-viewport" [(visible)]="flowListpopupVisible">
@@ -35,16 +38,16 @@
       </div>
     </dx-select-box> -->
 
-    <dx-data-grid (onRowDblClick)="setFlowSelected($event)" [dataSource]="workflowList"
-    [selection]="{ mode: 'single' }" [hoverStateEnabled]="true" [paging]="{ enabled: true, pageSize: 10 }"
-    [filterRow]="{ visible: true }" [scrolling]="{ mode: 'infinite' }" height="100%" [columnAutoWidth]="true"
-    [allowColumnResizing]="true" [selection]="{ mode: 'single' }" [hoverStateEnabled]="true"
-    [paging]="{ enabled: true, pageSize: 10 }" [filterRow]="{ visible: true }" [scrolling]="{ mode: 'infinite' }"
-    height="100%" [columnAutoWidth]="true" [allowColumnResizing]="true">
-    <dxi-column dataField="FLU_CONT" [visible]="false"></dxi-column>
-    <dxi-column dataField="FLU_NOMB" caption="Nombre">
-    </dxi-column>    
-  </dx-data-grid>
+    <dx-data-grid (onRowDblClick)="setFlowSelected($event)" [dataSource]="workflowList" [selection]="{ mode: 'single' }"
+      [hoverStateEnabled]="true" [paging]="{ enabled: true, pageSize: 10 }" [filterRow]="{ visible: true }"
+      [scrolling]="{ mode: 'infinite' }" height="100%" [columnAutoWidth]="true" [allowColumnResizing]="true"
+      [selection]="{ mode: 'single' }" [hoverStateEnabled]="true" [paging]="{ enabled: true, pageSize: 10 }"
+      [filterRow]="{ visible: true }" [scrolling]="{ mode: 'infinite' }" height="100%" [columnAutoWidth]="true"
+      [allowColumnResizing]="true">
+      <dxi-column dataField="FLU_CONT" [visible]="false"></dxi-column>
+      <dxi-column dataField="FLU_NOMB" caption="Nombre">
+      </dxi-column>
+    </dx-data-grid>
   </div>
 </dx-popup>
 
@@ -67,7 +70,7 @@
       <dx-form [formData]="stagePropesrtiesItems" [colCount]="4" labelLocation="top">
         <dxi-item itemType="tabbed" [colSpan]="4">
           <dxi-tab title="General">
-            <dxi-item itemType="group" caption="General" [colCount]="4">
+            <dxi-item itemType="group" [colCount]="4">
               <dxi-item dataField="ETA_INIC" [editorType]="'dxCheckBox'">
                 <dxo-label text="Etapa inicial"></dxo-label>
               </dxi-item>
@@ -108,14 +111,15 @@
               <dxi-item dataField="ETA_SECU">
                 <dxo-label text="Secuencia"></dxo-label>
               </dxi-item>
+              <dxi-item dataField="ETA_MTIE" [colCount]="1">
+                <dxo-label text="Método  de control de tiempo y costo "></dxo-label>
+              </dxi-item>
             </dxi-item>
 
             <dxi-item dataField="ETA_ASUN" [colCount]="4" [editorType]="'dxTextArea'">
               <dxo-label text="Asunto"></dxo-label>
             </dxi-item>
-            <dxi-item dataField="ETA_MTIE" [colCount]="2">
-              <dxo-label text="Método  de control de tiempo y costo "></dxo-label>
-            </dxi-item>
+           
             <dxi-item dataField="ETA_APAR" [colCount]="2" [editorType]="'dxRadioGroup'"
               [editorOptions]="{items:calcItems, displayExpr:'text' , valueExpr:'id', layout:'horizontal'}">
               <dxo-label text="Cálculo a partir de"></dxo-label>
@@ -141,61 +145,66 @@
               <dxo-label text="Instrucciones"></dxo-label>
             </dxi-item>
           </dxi-tab>
-          <dxi-tab title="Formulario" [disabled]="tabFormVisibility()">
-            <dxi-item dataField="WF_FETAP" template="fetapTemplate">
-              <dxi-validation-rule type="required" message="Requerido"></dxi-validation-rule>
-              <dxo-label text="Formas">
-              </dxo-label>
+          <dxi-tab title="Formulario" [disabled]="tabFormVisibility()" [colCount]="12">
+            <dxi-item itemType="button" [buttonOptions]="newFrmasStage" [colSpan]="2"></dxi-item>
+            <dxi-item itemType="button" [buttonOptions]="propertyFrmasStage" [colSpan]="2"></dxi-item>
+            <dxi-item itemType="button" [buttonOptions]="deleteFrmasStage" [colSpan]="2"></dxi-item>
+            <dxi-item itemType="group" [cssClass]="12">
+              <dxi-item dataField="WF_FETAP" template="fetapTemplate" [colSpan]="9">           
+                <dxo-label text="Formas">
+                </dxo-label>
+              </dxi-item>
+              <div *dxTemplate="let data of 'fetapTemplate'">
+                <dx-data-grid [dataSource]="stagePropesrtiesItems.WF_FETAP" [selection]="{ mode: 'single' }"
+                  [hoverStateEnabled]="true" [paging]="{ enabled: true, pageSize: 10 }" [filterRow]="{ visible: true }"
+                  [scrolling]="{ mode: 'infinite' }" height="100%" [columnAutoWidth]="true" [allowColumnResizing]="true">
+                  <dxo-editing [mode]="'form'" [useIcons]="true" [allowDeleting]="true" [allowUpdating]="true"
+                    [confirmDelete]="true">
+                    <dxo-texts deleteRow="Eliminar" cancelAllChanges="Cancelar cambios" saveRowChanges="Guardar"
+                      cancelRowChanges="Cancelar" confirmDeleteMessage="¿Está seguro de borrar este registro?">
+                    </dxo-texts>
+                  </dxo-editing>
+                  <dxi-column dataField="FRM_CODI" caption="Forma">
+                    <dxo-lookup [dataSource]="wfFormasList" valueExpr="FRM_CODI" displayExpr="FRM_NOMB">
+                    </dxo-lookup>
+                  </dxi-column>
+                  <dxi-column dataField="FET_SDIN" caption="Siempre debe diligenciar información">
+                    <dxo-lookup [dataSource]="yesNoItems" valueExpr="id" displayExpr="text">
+                    </dxo-lookup>
+                  </dxi-column>
+                  <dxi-column dataField="FET_DELE" caption="Permite modificar">
+                    <dxo-lookup [dataSource]="yesNoItems" valueExpr="id" displayExpr="text">
+                    </dxo-lookup>
+                  </dxi-column>
+                  <dxi-column dataField="PLA_CONT" caption="Plantilla">
+                    <dxo-lookup [dataSource]="wfPlantItems" valueExpr="PLA_CONT" displayExpr="PLA_DESC">
+                    </dxo-lookup>
+                  </dxi-column>
+  
+                </dx-data-grid>
+              </div>
             </dxi-item>
-            <div *dxTemplate="let data of 'fetapTemplate'">
-              <dx-data-grid [dataSource]="stagePropesrtiesItems.WF_FETAP" [selection]="{ mode: 'single' }"
-                [hoverStateEnabled]="true" [paging]="{ enabled: true, pageSize: 10 }" [filterRow]="{ visible: true }"
-                [scrolling]="{ mode: 'infinite' }" height="100%" [columnAutoWidth]="true" [allowColumnResizing]="true">
-                <dxo-editing [mode]="'form'" [useIcons]="true" [allowDeleting]="true" [allowUpdating]="true"
-                  [confirmDelete]="true">
-                  <dxo-texts deleteRow="Eliminar" cancelAllChanges="Cancelar cambios" saveRowChanges="Guardar"
-                    cancelRowChanges="Cancelar" confirmDeleteMessage="¿Está seguro de borrar este registro?">
-                  </dxo-texts>
-                </dxo-editing>
-                <dxi-column dataField="FRM_CODI" caption="Forma">
-                  <dxo-lookup [dataSource]="wfFormasList" valueExpr="FRM_CODI" displayExpr="FRM_NOMB">
-                  </dxo-lookup>
-                </dxi-column>
-                <dxi-column dataField="FET_SDIN" caption="Siempre debe diligenciar información">
-                  <dxo-lookup [dataSource]="yesNoItems" valueExpr="id" displayExpr="text">
-                  </dxo-lookup>
-                </dxi-column>
-                <dxi-column dataField="FET_DELE" caption="Permite modificar">
-                  <dxo-lookup [dataSource]="yesNoItems" valueExpr="id" displayExpr="text">
-                  </dxo-lookup>
-                </dxi-column>
-                <dxi-column dataField="PLA_CONT" caption="Plantilla">
-                  <dxo-lookup [dataSource]="wfPlantItems" valueExpr="PLA_CONT" displayExpr="PLA_DESC">
-                  </dxo-lookup>
-                </dxi-column>
-
-              </dx-data-grid>
-            </div>
-            <dxi-item itemType="button" [buttonOptions]="newFrmasStage"></dxi-item>
-            <dxi-item itemType="button" [buttonOptions]="propertyFrmasStage"></dxi-item>
-            <dxi-item itemType="button" [buttonOptions]="deleteFrmasStage"></dxi-item>
+           
+           
           </dxi-tab>
-          <dxi-tab title="Ejecutores" [disabled]="tabExecutorsVisibility()">
-            <dxi-item dataField="ETA_EJEC" [colSpan]="1" [editorType]="'dxSelectBox'"
+          <dxi-tab title="Ejecutores" [disabled]="tabExecutorsVisibility()" [colCount]="2">
+            <dxi-item dataField="ETA_EJEC" [editorType]="'dxSelectBox'" [colSpan]="1"
               [editorOptions]=" { items: executorsItems , displayExpr:'text' , valueExpr:'id' }">
               <dxo-label text="Tipo de ejecutor de la tarea"></dxo-label>
             </dxi-item>
-            <dxi-item dataField="ETA_CRIA" [colSpan]="1" [editorType]="'dxSelectBox'"
+            <dxi-item dataField="ETA_CRIA" [editorType]="'dxSelectBox'" [colSpan]="1"
               [editorOptions]=" { items: criteryExecutors , displayExpr:'text' , valueExpr:'id' }">
               <dxo-label text="Criterio de selección"></dxo-label>
             </dxi-item>
-            <dxi-item itemType="button" [buttonOptions]="setNewAssignamentButton"
-              [visible]="stagePropesrtiesItems.ETA_EJEC=='U'">
-            </dxi-item>
-            <dxi-item itemType="group" caption="Asignados" [colCount]="4"
-              [visible]="stagePropesrtiesItems.ETA_EJEC=='U'">
+            <dxi-item itemType="button" [buttonOptions]="setNewAssignamentButton" [colSpan]="2"
+            [visible]="stagePropesrtiesItems.ETA_EJEC=='U'">
+          </dxi-item>
+            <dxi-item itemType="group" caption="Asignados" [colSpan]="2"
+            
+              [visible]="stagePropesrtiesItems.ETA_EJEC=='U' && stagePropesrtiesItems.WF_APTOS.length>0" >
+            
 
-              <dxi-item dataField="WF_APTOS" template="aptosTemplate" colSpan="4">
+              <dxi-item dataField="WF_APTOS" template="aptosTemplate" colSpan="4" >
                 <dxo-label text="Asignar">
                 </dxo-label>
               </dxi-item>
@@ -318,7 +327,7 @@
               </dxi-item>
             </dxi-item>
           </dxi-tab>
-          <dxi-tab title="Información adicional app">
+          <dxi-tab title="Información adicional app" [disabled]="tabInformationAditionalTab()">
             <dxi-item dataField="ETA_SSQL" [editorType]="'dxTextArea'"
               [editorOptions]="{minHeight:'150px',maxLength:500,autoResizeEnabled:true}" [colCount]="2">
               <dxo-label text="Sentencia SQL para mostrar información en el app"></dxo-label>
@@ -331,37 +340,93 @@
             "></dxo-label>
             </dxi-item>
           </dxi-tab>
-          <dxi-tab title="Servicio Web" template="serviceTemplate">
-            <dxi-item dataField="WEB_CONT">
-              <dxo-label text="Servicio web"></dxo-label>
-            </dxi-item>
-            <div *dxTemplate="let data of 'serviceTemplate'">
-              <dx-drop-down-box #dropDownBoxfbd32e41 [deferRendering]="false" placeholder="Seleccione"
-                [showClearButton]="true" [value]="stagePropesrtiesItems.WEB_CONT" [dataSource]="wfWebseItems"
-                [displayExpr]="'WEB_CODI'" [valueExpr]="'WEB_CONT'">
-                <div *dxTemplate="let data of 'content'">
-                  <dx-data-grid id="gridContainer" [dataSource]="wfWebseItems" keyExpr="WEB_CONT"
-                    [activeStateEnabled]="true" [hoverStateEnabled]="true" [showBorders]="true">
-                    <dxi-column dataField="WEB_CODI" caption="Servicio web"></dxi-column>
-                    <dxo-master-detail [enabled]="true" template="detail"></dxo-master-detail>
-                    <div *dxTemplate="let web of 'detail'">
-                      <dx-data-grid (onRowDblClick)="setWfWebse($event)" [dataSource]="web.data.WF_MWEBS"
-                        [showBorders]="true" [columnAutoWidth]="true" [activeStateEnabled]="true"
-                        [hoverStateEnabled]="true">
-                        <dxi-column dataField="MWE_CODI" dataType="string" caption="Método"></dxi-column>
-                      </dx-data-grid>
-                    </div>
-                  </dx-data-grid>
-                </div>
-              </dx-drop-down-box>
-            </div>
-            <dxi-item dataField="MWE_CONT" editorType="dxSelectBox"
+          <dxi-tab title="Servicio Web" [disabled]="tabWebServiceVisibility()">                   
+              <dxi-item dataField="WEB_CONT" template="serviceTemplate" [caption]="'Servicio Web'">              
+              </dxi-item>
+              <dxi-item dataField="MWE_CONT" template="methodTemplate" [caption]="'Método'">              
+              </dxi-item>
+              <div *dxTemplate="let data of 'serviceTemplate'">
+                <dx-drop-down-box #dropDownBoxfbd32e41 [deferRendering]="false" placeholder="Seleccione"
+                  [showClearButton]="true" [value]="stagePropesrtiesItems.WEB_CONT" [items]="wfWebseItems"
+                  [displayExpr]="'WEB_CODI'" [valueExpr]="'WEB_CONT'">
+                  <div *dxTemplate="let data of 'content'">
+                    <dx-data-grid  [dataSource]="wfWebseItems" keyExpr="WEB_CONT"
+                      [activeStateEnabled]="true" [hoverStateEnabled]="true" [showBorders]="true">
+                      <dxi-column dataField="WEB_CODI" caption="Servicio web"></dxi-column>
+                      <dxo-master-detail [enabled]="true" template="detail"></dxo-master-detail>
+                      <div *dxTemplate="let web of 'detail'">
+                        <dx-data-grid (onRowDblClick)="setWfWebse($event)" [dataSource]="web.data.WF_MWEBS"
+                          [showBorders]="true" [columnAutoWidth]="true" [activeStateEnabled]="true"
+                          [hoverStateEnabled]="true">
+                          <dxi-column dataField="MWE_CODI" caption="Método"></dxi-column>
+                        </dx-data-grid>
+                      </div>
+                    </dx-data-grid>
+                  </div>
+                </dx-drop-down-box>
+              </div>
+             
+              <div *dxTemplate="let data of 'methodTemplate'">
+  
+                <dx-drop-down-box #dropDownBoxfbd32e4478 [deferRendering]="false" placeholder="Seleccione"
+                  [showClearButton]="true" [value]="stagePropesrtiesItems.MWE_CONT" [dataSource]="WfMwebsItems"
+                  [displayExpr]="'MWE_CONT'" [valueExpr]="'MWE_CONT'">
+                </dx-drop-down-box>
+  
+  
+              </div>
+  
+     
+          
+           
+
+            <!-- <dxi-item dataField="MWE_CONT" editorType="dxSelectBox"
               [editorOptions]="{ dataSource:WfMwebsItems , displayExpr:'MWE_CODI', valueExpre:'MWE_CONT' }">
               <dxo-label text="Método"></dxo-label>
-            </dxi-item>
+            </dxi-item>  -->
+           
+            <!-- <dxi-item itemType="group" caption="Parámetros">
+
+              <dxi-item dataField="WF_PSWET" template="pametersTemplate">
+                <dxo-label text="Parámetros"></dxo-label>
+              </dxi-item>
+
+              <div *dxTemplate="let data of 'pametersTemplate'">
+                <dx-data-grid (onEditorPreparing)="test($event)"
+                  [dataSource]="stagePropesrtiesItems.WF_PSWET" [selection]="{ mode: 'single' }"
+                  [hoverStateEnabled]="true" [paging]="{ enabled: true, pageSize: 10 }" [filterRow]="{ visible: true }"
+                  [scrolling]="{ mode: 'infinite' }" height="100%" [columnAutoWidth]="true"
+                  [allowColumnResizing]="true">
+                  <dxo-editing [useIcons]="true" [allowDeleting]="true" [confirmDelete]="true"
+                   >
+                    <dxo-texts deleteRow="Eliminar" cancelAllChanges="Cancelar cambios" saveRowChanges="Guardar"
+                      cancelRowChanges="Cancelar" confirmDeleteMessage="¿Está seguro de borrar este registro?">
+                    </dxo-texts>
+                  </dxo-editing>
+                  <dxi-column dataField="PME_SECU" caption="Secuencia" [calculateCellValue]="calculatedSecu">
+                  </dxi-column>
+                  <dxi-column dataField="PME_CONT" caption="Parámetro">
+                    <dx-lookup [dataSource]="wfPmetoItems" [displayExpr]="'PME_CODI'" [valueExpr]="'PME_CONT'"></dx-lookup>
+                  </dxi-column>
+                  <dxi-column  caption="Tipo de dato" [calculateCellValue]="calculatedDataType">
+                    <dx-lookup [dataSource]="[{ text:'Número', id:'N'}, {text:'String',id:'C'},{text:'Fecha',id:'F'},{text:'E',id:'Estructura'},{text:'Detalle',id:'F'}]" [displayExpr]="'text'" [valueExpr]="'id'"></dx-lookup>
+                  </dxi-column>      
+                  <dxi-column dataField="PME_CLAS" caption="Clase"  [calculateCellValue]="calculatedClass">
+                    <dx-lookup [dataSource]="[{ text:'Salida', id:'S'}, {text:'Entrada',id:'E'}]" [displayExpr]="'text'" [valueExpr]="'id'"></dx-lookup>
+                  </dxi-column>        
+                  <dxi-column dataField="PSW_TVAL" caption="Origen">
+                    <dx-lookup [dataSource]="[{ text:'Campo', id:'C'}, {text:'Valor fijo',id:'V'}]" [displayExpr]="'text'" [valueExpr]="'id'"></dx-lookup>
+                  </dxi-column> 
+                  <dxi-column dataField="PSW_VALO" caption="Campo a utilizar">
+                   
+                  </dxi-column>            
+                </dx-data-grid>
+              </div>
+
+            </dxi-item> -->
 
           </dxi-tab>
-          <dxi-tab title="Correo">
+          <dxi-tab title="Correo" [disabled]="tabMailVisibility()">
             <dxi-item dataField="ETA_ACOR" colSpan="1">
               <dxo-label text="Asunto"></dxo-label>
             </dxi-item>
@@ -377,13 +442,11 @@
               </dxi-item>
 
               <div *dxTemplate="let data of 'destinyTemplate'">
-                <dx-data-grid
-                  [dataSource]="stagePropesrtiesItems.WF_DESTI" [selection]="{ mode: 'single' }"
+                <dx-data-grid [dataSource]="stagePropesrtiesItems.WF_DESTI" [selection]="{ mode: 'single' }"
                   [hoverStateEnabled]="true" [paging]="{ enabled: true, pageSize: 10 }" [filterRow]="{ visible: true }"
                   [scrolling]="{ mode: 'infinite' }" height="100%" [columnAutoWidth]="true"
                   [allowColumnResizing]="true">
-                  <dxo-editing [useIcons]="true" [allowDeleting]="true" [confirmDelete]="true"
-                   >
+                  <dxo-editing [useIcons]="true" [allowDeleting]="true" [confirmDelete]="true">
                     <dxo-texts deleteRow="Eliminar" cancelAllChanges="Cancelar cambios" saveRowChanges="Guardar"
                       cancelRowChanges="Cancelar" confirmDeleteMessage="¿Está seguro de borrar este registro?">
                     </dxo-texts>
@@ -391,9 +454,10 @@
                   <dxi-column dataField="DES_DEST" caption="Nombre">
                   </dxi-column>
                   <dxi-column dataField="DES_TDES" caption="Tipo">
-                    <dxo-lookup [dataSource]="[ { id:'R', name:'Rol'}, { id:'U',name:'Usuario'}, { id:'C', name:'Correo'}]"
-                    valueExpr="id" displayExpr="name">
-                  </dxo-lookup>
+                    <dxo-lookup
+                      [dataSource]="[ { id:'R', name:'Rol'}, { id:'U',name:'Usuario'}, { id:'C', name:'Correo'}]"
+                      valueExpr="id" displayExpr="name">
+                    </dxo-lookup>
                   </dxi-column>
                   <!-- <div *dxTemplate="let cellInfo of 'editCellTemplateDES_TDES'">
                     <dx-lookup [searchEnabled]="true"

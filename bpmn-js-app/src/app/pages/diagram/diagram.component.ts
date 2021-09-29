@@ -14,8 +14,8 @@ import {
 import { HttpClient } from '@angular/common/http';
 import { map, switchMap } from 'rxjs/operators';
 import customTranslate from '../../customTranslate/customTranslate';
+import paletteProvider from '../../modules/palette/paletteProvider';
 import BpmnModdle from 'bpmn-moddle';
-import ArrayStore from 'devextreme/data/array_store';
 const moddle = new BpmnModdle();
 /**
  * You may include a different variant of BpmnJS:
@@ -42,7 +42,6 @@ import { UsersService } from '../../services/users.service';
 import { Wf_Aptos } from '../../models/bpm/Wf_Aptos';
 import { Wf_Deleg } from '../../models/bpm/Wf_Deleg';
 import { Wf_Usegu } from '../../models/bpm/Wf_Usegu';
-import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 import { FormDetailService } from '../../services/form-detail.service';
 import { FormDetail } from '../../models/bpm/Wf_Defor';
 import { Wf_Frmas } from '../../models/bpm/Wf_Frmas';
@@ -50,13 +49,13 @@ import { StageFrmasService } from '../../services/stage-frmas.service';
 import { Wf_Plant } from '../../models/bpm/Wf_Plant';
 import { WfPlantService } from '../../services/wfplant.service';
 import { SubProcess } from '../../models/bpm/subProcessForm';
-import { element } from 'protractor';
 import { WfWebseService } from '../../services/wfwebse.service';
 import { Wf_Webse } from '../../models/bpm/Wf_Webse';
-import DataSource from 'devextreme/data/data_source';
 import { Wf_Mwebs } from '../../models/bpm/Wf_Mwebs';
 import { Wf_Desti } from '../../models/bpm/Wf_Desti';
-
+import { Wf_Pmeto } from '../../models/bpm/wfpmeto';
+import { WfpmetoService } from '../../services/wfpmeto.service';
+import { Wf_Pswet } from '../../models/bpm/Wf_Pswet';
 @Component({
   selector: 'app-diagram',
   templateUrl: './diagram.component.html',
@@ -131,6 +130,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
   usersCompany: any[] = [];
   wfWebseItems: Wf_Webse[] = [];
   WfMwebsItems: Wf_Mwebs[] = [];
+  wfPmetoItems: Wf_Pmeto[] = [];
   criteryExecutors = [{ text: 'Aleatorio', id: 'A' },
   { text: 'Secuencial', id: 'S' },
   { text: 'Balanceo de Cargas', id: 'B' },
@@ -140,7 +140,24 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
 
 
   emptyXml = `
-  <?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<bpmn:definitions xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:bpmn=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" id=\"Definitions_1\" targetNamespace=\"http://bpmn.io/schema/bpmn\"><bpmn:process id=\"Process_1\" isExecutable=\"false\" /><bpmndi:BPMNDiagram id=\"BPMNDiagram_1\"><bpmndi:BPMNPlane id=\"BPMNPlane_1\" bpmnElement=\"Process_1\" /></bpmndi:BPMNDiagram></bpmn:definitions>`
+  '<?xml version="1.0" encoding="UTF-8"?>' +
+  '<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ' +
+                    'xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" ' +
+                    'xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" ' +
+                    'xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" ' +
+                    'targetNamespace="http://bpmn.io/schema/bpmn" ' +
+                    'id="Definitions_1">' +
+    '<bpmn:process id="Process_1" isExecutable="false">' +
+      '<bpmn:startEvent id="StartEvent_1"/>' +
+    '</bpmn:process>' +
+    '<bpmndi:BPMNDiagram id="BPMNDiagram_1">' +
+      '<bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1">' +
+        '<bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">' +
+          '<dc:Bounds height="36.0" width="36.0" x="173.0" y="102.0"/>' +
+        '</bpmndi:BPMNShape>' +
+      '</bpmndi:BPMNPlane>' +
+    '</bpmndi:BPMNDiagram>' +
+  '</bpmn:definitions>`;
   items: any[] = [
     {
       location: 'before', widget: 'dxButton', options: {
@@ -192,20 +209,24 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
   constructor(private http: HttpClient, private WorkflowService: WorkflowService, private session: SessionService, private configService: ConfigService,
     private formsService: FormService, private rolesService: RolesService, private usersService: UsersService,
     private formDetailService: FormDetailService, private stageFrmasService: StageFrmasService,
-    private wfPlantService: WfPlantService, private wfWebseService: WfWebseService) {
+    private wfPlantService: WfPlantService, private wfWebseService: WfWebseService,
+    private wfPmetoService: WfpmetoService) {
     var customTranslateModule = {
-      translate: ['value', customTranslate]
+      translate: ['value', customTranslate],
     };
+
+
+    var paletteModule = {
+      __init__: ['paletteProvider'],
+      paletteProvider: ['type', paletteProvider]
+    }
 
     this.bpmnJS = new BpmnJS({
       additionalModules: [
-        customTranslateModule
+        paletteModule,
+        customTranslateModule,
       ]
     });
-
-
-
-
 
 
 
@@ -241,7 +262,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
         event.element.WF_ETAPA = new Wf_Etapa();
       }
       if (event.element.type != "bpmn:Process") {
-
+        debugger;
         switch (event.element.type) {
           case 'bpmn:SequenceFlow':
             break;
@@ -249,14 +270,24 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
             this.newSubprocessVisible = true;
             break;
           case 'bpmn:StartEvent':
+
+            if (event.element.businessObject.eventDefinitions != undefined &&
+              event.element.businessObject.eventDefinitions.length > 0) {
+              if (event.element.businessObject.eventDefinitions[0].type == "bpmn:MessageEventDefinition" || event.element.businessObject.eventDefinitions[0].$type) {
+
+                this.loadPropertiesPanel(event);
+                break;
+              }
+
+            }
+            else {
+              break;
+            }
             break;
           case '"bpmn:EndEvent':
             break;
           default:
-            console.log(event);
-            this.flowStagePropertiesVisible = true;
-            this.stagePropesrtiesItems = event.element.WF_ETAPA;
-            this.elementSelected = event;
+            this.loadPropertiesPanel(event)
             break;
         }
 
@@ -364,6 +395,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
       icon: 'check',
       onClick: () => {
         this.newWorkFlowWindowVisible = false;
+        this.workflowSelected.FOR_CONT =  this.newForkFlowFormtTemp.FOR_CONT;
+        this.getFormFrmas();
+        this.getFlowsSubprocess();
         this.setFormWorkFlow();
       }
 
@@ -464,6 +498,13 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
 
     };
 
+  }
+
+  loadPropertiesPanel(event) {
+    console.log(event);
+    this.flowStagePropertiesVisible = true;
+    this.stagePropesrtiesItems = event.element.WF_ETAPA;
+    this.elementSelected = event;
   }
   handleImported(event) {
 
@@ -866,9 +907,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
 
   setFormWorkFlowTemp(e) {
     this.newForkFlowFormtTemp = e.data;
-    this.workflowSelected.FOR_CONT = e.data.FOR_CONT;
-    this.getFormFrmas();
-    this.getFlowsSubprocess();
+  
     this.dropdownNewWorkFlowFormu.instance.close();
   }
 
@@ -937,7 +976,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
       case "bpmn:StartEvent":
         if (event.element.businessObject.eventDefinitions != undefined &&
           event.element.businessObject.eventDefinitions.length > 0) {
-          if (event.element.businessObject.eventDefinitions[0].type == "bpmn:MessageEventDefinition") {
+          if (event.element.businessObject.eventDefinitions[0].type == "bpmn:MessageEventDefinition" || event.element.businessObject.eventDefinitions[0].$type) {
 
             return "Inicio con mensaje"
           }
@@ -963,7 +1002,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
       case "bpmn:EndEvent":
         if (event.element.businessObject.eventDefinitions != undefined &&
           event.element.businessObject.eventDefinitions.length > 0) {
-          if (event.element.businessObject.eventDefinitions[0].type == "bpmn:TerminateEventDefinition") {
+          if (event.element.businessObject.eventDefinitions[0].type == "bpmn:TerminateEventDefinition" || event.element.businessObject.eventDefinitions[0].$type) {
 
             return "Finalización Proceso";
           }
@@ -1011,14 +1050,73 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
     console.log(e.data);
     this.stagePropesrtiesItems.WEB_CONT = e.data.WEB_CONT;
     this.stagePropesrtiesItems.MWE_CONT = e.data.MWE_CONT;
+    this.getWfPmetoByService(102,this.stagePropesrtiesItems.WEB_CONT,this.stagePropesrtiesItems.MWE_CONT);
+    this.wfPmetoService.getByService(102,this.stagePropesrtiesItems.WEB_CONT = e.data.WEB_CONT,this.stagePropesrtiesItems.MWE_CONT = e.data.MWE_CONT).subscribe(resp=>{
+      debugger;
+      if(resp.IsSuccessful && resp.Result!=null){
+  // Llenar un wf_pswet con un wf_pmeto
+         resp.Result.forEach(element => {
+            let wfpswet:Wf_Pswet =  {
+            EMP_CODI : element.EMP_CODI,
+            ETA_CONT : this.stagePropesrtiesItems.ETA_CONT,
+            FLU_CONT : this.stagePropesrtiesItems.FLU_CONT,
+            FRM_CODI :"",
+            MWE_CONT :element.MWE_CONT,
+            PLA_CONT : 0,
+            PME_CONT : element.PME_CONT,
+            PME_PADR :0,
+            PME_SECU : element.PME_SECU,
+            PSW_CAMP : "",
+            PSW_CONT : 0,
+            PSW_NCAM : "",
+            PSW_VALO :"",
+            WEB_CONT : this.stagePropesrtiesItems.WEB_CONT,
+            PSW_TABL :"",
+            AUD_ESTA : "A",
+            AUD_UFAC : new Date(),
+            DGR_CONT : 0,
+            CAM_CODI :"",
+            AUD_USUA : "",
+            PSW_TVAL : "C",
+            DPL_CONT:0
+            }    
+            
+            
+            this.stagePropesrtiesItems.WF_PSWET.push(wfpswet)
+         }
+         
+
+         );
+        
+      }
+    })
     this.dropdownWfWebse.instance.close();
   }
 
+  buildWfPmeto() {
 
+  }
+
+
+  getWPmeto() {
+
+
+  }
   tabInstructiveVisibility() {
 
     if (this.elementSelected.element.type == "bpmn:UserTask")
       return false;
+    if (this.elementSelected.element.type == "bpmn:StartEvent") {
+      if (this.elementSelected.element.businessObject.eventDefinitions != undefined &&
+        this.elementSelected.element.businessObject.eventDefinitions.length > 0) {
+        if (this.elementSelected.element.businessObject.eventDefinitions[0].type == "bpmn:MessageEventDefinition" || this.elementSelected.element.businessObject.eventDefinitions[0].$type) {
+          return false;
+        }
+      }
+      else {
+        return true;
+      }
+    }
     else
       return true;
   }
@@ -1043,7 +1141,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
       case "bpmn:StartEvent":
         if (this.elementSelected.element.businessObject.eventDefinitions != undefined &&
           this.elementSelected.element.businessObject.eventDefinitions.length > 0) {
-          if (this.elementSelected.element.businessObject.eventDefinitions[0].type == "bpmn:MessageEventDefinition") {
+          if (this.elementSelected.element.businessObject.eventDefinitions[0].type == "bpmn:MessageEventDefinition" || this.elementSelected.element.businessObject.eventDefinitions[0].$type) {
             return false;
           }
         }
@@ -1063,117 +1161,117 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
     if (this.elementSelected.element.type == "bpmn:UserTask")
       return false;
     else return true;
-    // usuario
-    //  debugger;
-    //  switch (event.element.type) {
-    //    case "bpmn:StartEvent":
-    //      if (event.element.businessObject.eventDefinitions != undefined &&
-    //        event.element.businessObject.eventDefinitions.length > 0) {
-    //        if (event.element.businessObject.eventDefinitions[0].type == "bpmn:MessageEventDefinition") {
-
-    //          return "Inicio con mensaje"
-    //        }
-
-    //      }
-    //      else {
-    //        return "Inicio";
-    //      }
-    //    case "bpmn:UserTask":
-    //      return "Tarea de usuario";
-    //    case "bpmn:Task":
-    //      return "Tarea";
-    //    case "bpmn:ExclusiveGateway":
-    //      return "Compuerta exclusiva";
-    //    case "bpmn:serviceTask":
-    //      return "Tarea de servicio";
-    //    case "bpmn:ServiceTask":
-    //      return "Tarea de servicio";
-    //    case "bpmn:sendTask":
-    //      return "Tarea de email";
-    //    case "bpmn:SendTask":
-    //      return "Tarea de email";
-    //    case "bpmn:EndEvent":
-    //      if (event.element.businessObject.eventDefinitions != undefined &&
-    //        event.element.businessObject.eventDefinitions.length > 0) {
-    //        if (event.element.businessObject.eventDefinitions[0].type == "bpmn:TerminateEventDefinition") {
-
-    //          return "Finalización Proceso";
-    //        }
-
-    //      }
-    //      else {
-    //        return "Finalización corriente";
-    //      }
-    //    case "bpmn:ScriptTask":
-    //      return "Tarea de script";
-    //    case "bpmn:ParallelGateway":
-    //      return "Compuerta paralela";
-    //    case "bpmn:ComplexGateway":
-    //      "Compuerta compleja";
-    //    case "bpmn:InclusiveGateway":
-    //      return "Compuerta inclusiva";
-    //    case "bpmn:BusinessRuleTask":
-    //      return "Tarea regla negocio";
-    //    case "label":
-    //      return event.element.businessObject.name;
-    //    case "bpmn:SubProcess":
-    //      return "Subproceso";
-
-    //    default:
-    //      return "Elemento no mapeado";
   }
 
-  tabDelegableVisibility(){
+  tabDelegableVisibility() {
     if (this.elementSelected.element.type == "bpmn:UserTask")
-    return false;
-  else return true;
+      return false;
+    else return true;
   }
 
 
-  tabFollowUpVisibility(){
+  tabFollowUpVisibility() {
 
 
 
-    switch (this.elementSelected.element.type ) {
+    switch (this.elementSelected.element.type) {
       case "bpmn:StartEvent":
         if (this.elementSelected.element.businessObject.eventDefinitions != undefined &&
           this.elementSelected.element.businessObject.eventDefinitions.length > 0) {
-          if (this.elementSelected.element.businessObject.eventDefinitions[0].type == "bpmn:MessageEventDefinition") {
+          if (this.elementSelected.element.businessObject.eventDefinitions[0].type == "bpmn:MessageEventDefinition" || this.elementSelected.element.businessObject.eventDefinitions[0].$type) {
             return false;
           }
         }
         else {
           return true;
         }
-    case "bpmn:UserTask":
-      return false;
+      case "bpmn:UserTask":
+        return false;
       default:
-       return true;
+        return true;
     }
     // inicio con mensaje
     /// tarea de usuario
   }
 
-tabSimulationVisibility(){
-// inicio con mensaje
- // tarea de usuario
+  tabSimulationVisibility() {
+    // inicio con mensaje
+    // tarea de usuario
 
- switch (this.elementSelected.element.type ) {
-  case "bpmn:StartEvent":
-    if (this.elementSelected.element.businessObject.eventDefinitions != undefined &&
-      this.elementSelected.element.businessObject.eventDefinitions.length > 0) {
-      if (this.elementSelected.element.businessObject.eventDefinitions[0].type == "bpmn:MessageEventDefinition") {
+    switch (this.elementSelected.element.type) {
+      case "bpmn:StartEvent":
+        if (this.elementSelected.element.businessObject.eventDefinitions != undefined &&
+          this.elementSelected.element.businessObject.eventDefinitions.length > 0) {
+          if (this.elementSelected.element.businessObject.eventDefinitions[0].type == "bpmn:MessageEventDefinition" || this.elementSelected.element.businessObject.eventDefinitions[0].$type) {
+            return false;
+          }
+        }
+        else {
+          return true;
+        }
+      case "bpmn:UserTask":
         return false;
-      }
+      default:
+        return true;
     }
-    else {
+  }
+
+  tabInformationAditionalTab() {
+    if (this.elementSelected.element.type == "bpmn:UserTask")
+      return false;
+    else return true;
+  }
+
+  tabWebServiceVisibility() {
+
+    switch (this.elementSelected.element.type) {
+      case "bpmn:serviceTask":
+        return false;
+      case "bpmn:ServiceTask":
+        return false;
+
+      default:
+        return true;
+    }
+  }
+
+  tabMailVisibility() {
+    if (this.elementSelected.element.type == "bpmn:SendTask")
+      return false;
+    else
       return true;
+  }
+  getWfPmetoByService(emp_codi: number, web_cont: number, mwe_cont: number) {
+    this.wfPmetoService.getByService(emp_codi, web_cont, mwe_cont).subscribe(resp => {
+
+      if (resp.IsSuccessful && resp.Result != null) {
+        this.wfPmetoItems = resp.Result;
+      }
+    })
+  }
+
+  test(options){
+  //   if (options.parentType == 'dataRow') {  
+  //     if (options.dataField == 'name') {  
+  //         options.editorElement.dxTextBox('instance').option('onValueChanged', function (e) {  
+  //             options.component.getCellElement(options.row.rowIndex, "name1").find(".dx-textbox").dxTextBox("instance").option("value", "new value");  
+  //         });  
+  //     }  
+  // }  
+  debugger;
+    if (options.dataField === 'PSW_VALO' && options.parentType === 'dataRow') {
+      options.component.getCellElement(options.row.rowIndex, "PSW_TVAL")      
     }
-case "bpmn:UserTask":
-  return false;
-  default:
-   return true;
-}
+
+  }
+  calculatedDataType(rowData){
+      return this.wfPmetoItems.filter(t=> t.EMP_CODI && 102 && t.WEB_CONT ==   this.stagePropesrtiesItems.WEB_CONT && t.MWE_CONT ==   this.stagePropesrtiesItems.MWE_CONT)[0].PME_TIPO;
+  }
+  calculatedClass(rowData){
+    return this.wfPmetoItems.filter(t=> t.EMP_CODI && 102 && t.WEB_CONT ==   this.stagePropesrtiesItems.WEB_CONT && t.MWE_CONT ==   this.stagePropesrtiesItems.MWE_CONT)[0].PME_CLAS;
 }
 
+calculatedSecu(rowData){
+  return this.wfPmetoItems.filter(t=> t.EMP_CODI && 102 && t.WEB_CONT ==   this.stagePropesrtiesItems.WEB_CONT && t.MWE_CONT ==   this.stagePropesrtiesItems.MWE_CONT)[0].PME_SECU;
+}
 }
