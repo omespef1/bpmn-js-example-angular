@@ -4,6 +4,8 @@ import { Wf_Usegu } from './Wf_Usegu';
 import { Wf_Fetap } from './Wf_Fetap';
 import { Wf_Desti } from './Wf_Desti';
 import { Wf_Pswet } from './Wf_Pswet';
+import { Wf_Idocu } from './Wf_Idocu';
+import { Wf_Accio } from './Wf_Accio';
 export class Wf_Etapa {
 
 	constructor() {
@@ -78,6 +80,8 @@ export class Wf_Etapa {
 		this.WF_FETAP = [];
 		this.WF_DESTI = [];
 		this.WF_PSWET = [];
+		this.WF_IDOCU=[];	
+		this.WF_ACCIO =[];
 	}
 	EMP_CODI: string;
 	FLU_CONT: number;
@@ -150,6 +154,9 @@ export class Wf_Etapa {
 	WF_FETAP: Wf_Fetap[];
 	WF_DESTI: Wf_Desti[];
 	WF_PSWET: Wf_Pswet[];
+	WF_IDOCU: Wf_Idocu[];
+	WF_ACCIO:Wf_Accio[];
+	
 
 
 }

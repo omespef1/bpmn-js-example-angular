@@ -3,7 +3,7 @@ import { DiagramComponent } from './pages/diagram/diagram.component';
 import { NgModule } from '@angular/core';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AppComponent } from './app.component';
-import { DxDataGridModule, DxDropDownBoxModule, DxFormModule, DxLookupModule, DxPopupModule, DxScrollViewModule, DxSelectBoxModule, DxTabsModule, DxTextBoxModule, DxToolbarModule } from 'devextreme-angular';
+import { DxButtonGroupModule, DxDataGridModule, DxDropDownBoxModule, DxFileUploaderModule, DxFormModule, DxLookupModule, DxPopupModule, DxScrollViewModule, DxSelectBoxModule, DxTabsModule, DxTextBoxModule, DxToolbarModule, DxTreeListModule, DxTreeViewModule } from 'devextreme-angular';
 import { AppRoutingModule } from './app.routing.module';
 import { DxoPositionModule } from 'devextreme-angular/ui/nested';
 import { AuthInterceptorService } from './interceptors/interceptor';
@@ -27,7 +27,11 @@ import { AuthInterceptorService } from './interceptors/interceptor';
     DxTabsModule,
     DxScrollViewModule,
     DxLookupModule,
-    DxTextBoxModule
+    DxTextBoxModule,
+    DxFileUploaderModule,
+    DxTreeListModule,
+    DxTreeViewModule,
+    DxButtonGroupModule
   ],
   providers:[
     {

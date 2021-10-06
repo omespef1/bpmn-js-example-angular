@@ -56,18 +56,30 @@ import { Wf_Desti } from '../../models/bpm/Wf_Desti';
 import { Wf_Pmeto } from '../../models/bpm/wfpmeto';
 import { WfpmetoService } from '../../services/wfpmeto.service';
 import { Wf_Pswet } from '../../models/bpm/Wf_Pswet';
+import { v4 as uuidv4 } from "uuid";
+import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
+import { Wf_Idocu } from '../../models/bpm/Wf_Idocu';
+import { Wf_Accio } from '../../models/bpm/Wf_Accio';
+import { Wf_Dplan } from '../../models/bpm/Wf_Dplan';
+import { element } from 'protractor';
+const UPLOAD_URL ="Upload"
 @Component({
   selector: 'app-diagram',
   templateUrl: './diagram.component.html',
   styleUrls: ['./diagram.component.css']
 })
 export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy, OnInit {
+  fileAllowedExtensions: string[] = [];
+  SESSION_ID =  uuidv4();
   stagePropesrtiesItems: Wf_Etapa = new Wf_Etapa();
   @ViewChild('dropDownBoxWorflowList', { static: false }) dropDownBoxWorflowList: DxSelectBoxComponent;
   elementSelected: any;
   title = 'bpmn-js-angular';
   importError?: Error;
   closeButtonOptions: any;
+  webServiceButton:any;
+  processButton:any;
+  methodButton:any;
   closeButtonNewWorkFlowWindow: any;
   closeButtonNewSubprocesswWindow: any;
   closeButtonNewAssignament: any;
@@ -82,6 +94,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
   setNewSubprocessButton: any;
   setNewAssignamentButton: any;
   setNewDestinyMailUser: any;
+  popupActionsVisibleButton:any;
   newFrmasStage: any;
   propertyFrmasStage: any;
   deleteFrmasStage: any;
@@ -90,10 +103,12 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
   setNewDetalFormButton: any;
   flowListpopupVisible = false;
   flowStagePropertiesVisible = false;
+  actionStageSelected:Wf_Accio = new Wf_Accio();
   newWorkFlowWindowVisible = false;
   newSubprocessVisible = false;
   newAssignamentStageVisible = false;
   assignamentDestinyMailPopupVisible = false;
+  actionsPopupVisible=false;
   newDelegatedStageVisible = false;
   newFollowStageVisible = false;
   newFormDetailStageVisible = false;
@@ -114,6 +129,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
   gridColumns: any = ['FLU_NOMB'];
   priorityItems = [{ text: 'Alta', id: 'A' }, { text: 'Media', id: 'M' }, { text: 'Baja', id: 'B' }];
   wfPlantItems: Wf_Plant[] = [];
+  wfPlantDetailsItems: Wf_Dplan[] = [];
   usertsToAsign: Wf_Aptos[] = [];
   delegateToAsign: Wf_Deleg[] = [];
   destinyToAsing: Wf_Desti[] = [];
@@ -121,6 +137,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
   formsDetailToAsig: FormDetail[] = [];
   wfFormasList: Wf_Frmas[] = [];
   calcItems = [{ text: 'Generación etapa', id: 'G' }, { text: 'Final Calendario', id: 'C' }]
+  actionsStateWorkDone = [{ text: 'Completada', id: 'C' }, { text: 'En curso', id: 'E' }]
   calendarItems = [{ text: 'Normal', id: 'J' }, { text: 'De días hábiles', id: 'H' }]
   executorsItems = [{ text: 'Usuarios/Roles', id: 'U' }, { text: 'Iniciador del proceso', id: 'I' },
   { text: 'Tarea Anterior', id: 'N' }, { text: 'Plantilla', id: 'P' }];
@@ -147,17 +164,19 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
                     'xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" ' +
                     'targetNamespace="http://bpmn.io/schema/bpmn" ' +
                     'id="Definitions_1">' +
-    '<bpmn:process id="Process_1" isExecutable="false">' +
+    '<bpmn:process id="Process_${this.SESSION_ID}" isExecutable="false">' +
       '<bpmn:startEvent id="StartEvent_1"/>' +
     '</bpmn:process>' +
     '<bpmndi:BPMNDiagram id="BPMNDiagram_1">' +
-      '<bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1">' +
+      '<bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_${this.SESSION_ID}">' +
         '<bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">' +
           '<dc:Bounds height="36.0" width="36.0" x="173.0" y="102.0"/>' +
         '</bpmndi:BPMNShape>' +
       '</bpmndi:BPMNPlane>' +
     '</bpmndi:BPMNDiagram>' +
   '</bpmn:definitions>`;
+  
+  
   items: any[] = [
     {
       location: 'before', widget: 'dxButton', options: {
@@ -322,6 +341,37 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
       }
     };
 
+    this.processButton = {
+      text: "Procedimiento",
+      icon: 'insertcolumnleft',
+      onClick: () => {
+        this.newSubprocessVisible = false;
+      }
+    };
+
+    this.methodButton = {
+      text: "Procedimiento",
+      icon: 'insertcolumnleft',
+      onClick: () => {
+        this.newSubprocessVisible = false;
+      }
+    };
+
+
+    
+    
+
+
+    this.webServiceButton = {
+      text: "Servicio web",
+      icon: 'globe',
+      onClick: () => {
+       
+      }
+
+
+    }
+
 
     this.closeButtonNewAssignament = {
       text: "Cerrar",
@@ -433,6 +483,17 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
 
     };
 
+    this.popupActionsVisibleButton = {
+      text: "Asignar",
+      icon: 'plus',
+      onClick: () => {
+        this.actionsPopupVisible = true;
+
+      }
+
+    };
+
+
 
 
 
@@ -498,6 +559,16 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
 
     };
 
+    this.fileAllowedExtensions = [
+      ".pdf",
+      ".doc",
+      ".docx",
+      ".jpeg",
+      ".jpg",
+      ".png",
+      ".PNG"
+  ]
+
   }
 
   loadPropertiesPanel(event) {
@@ -531,6 +602,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
     this.GetWfFormu();
     this.getUsertsToAsign();
     this.getWfPlant();
+    
     this.getWfWebseByCompany();
     // this.initEmpty();
 
@@ -558,6 +630,21 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
       if (resp.IsSuccessful && resp.Result != null) {
 
         this.wfPlantItems = resp.Result;
+        this.getWfPlantDetails();
+
+      }
+    })
+  }
+
+  
+  getWfPlantDetails() {
+    this.wfPlantService.getAllDetails(102).subscribe(resp => {
+      if (resp.IsSuccessful && resp.Result != null) {
+
+        this.wfPlantDetailsItems = resp.Result;
+        
+        this.getFilteredPlantItems = this.getFilteredPlantItems.bind(this);
+
 
       }
     })
@@ -935,10 +1022,13 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
   setFormWorkFlow() {
     this.initEmpty();
     this.newWorkFlowWindowVisible = false;
+    console.log(this.emptyXml);
   }
 
   initEmpty() {
     this.bpmnJS.importXML(this.emptyXml);
+    const rootElement = this.bpmnJS.get('canvas').getRootElement();
+    rootElement.id = this.SESSION_ID;
   }
 
   setNewAssignament() {
@@ -1194,6 +1284,24 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
     /// tarea de usuario
   }
 
+  tabActionsVisibility(){
+
+
+      switch (this.elementSelected.element.type) {
+        case "bpmn:ExclusiveGateway":
+          return false;
+          case "bpmn:InclusiveGateway":
+            return false;
+         case "bpmn:ComplexGateway":
+         return false;
+         case "bpmn:ComplexGateway":
+           return false;
+           default:
+           return true;
+      }
+    
+  }
+
   tabSimulationVisibility() {
     // inicio con mensaje
     // tarea de usuario
@@ -1274,4 +1382,67 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
 calculatedSecu(rowData){
   return this.wfPmetoItems.filter(t=> t.EMP_CODI && 102 && t.WEB_CONT ==   this.stagePropesrtiesItems.WEB_CONT && t.MWE_CONT ==   this.stagePropesrtiesItems.MWE_CONT)[0].PME_SECU;
 }
+
+beforeSend() {
+}
+
+checkDocuments() {
+}
+
+addIdParameter(e) {
+
+
+
+  let uploadUrl = this.updateQueryStringParameter(
+    `${this.configService.config.apiRwfEditrUrl}${UPLOAD_URL}`,
+    "uuid",
+    this.SESSION_ID
+  );
+  debugger;
+   uploadUrl = this.updateQueryStringParameter(
+    uploadUrl,
+    "stage",
+    this.elementSelected.element.id
+  );
+  e.component.option("uploadUrl", uploadUrl);
+}
+
+updateQueryStringParameter(uri, key, value) {
+  const re = new RegExp("([?&])" + key + "=.*?(&|$)", "i");
+  const separator = uri.indexOf("?") !== -1 ? "&" : "?";
+  if (uri.match(re)) {
+    return uri.replace(re, "$1" + key + "=" + value + "$2");
+  } else {
+    return uri + separator + key + "=" + value;
+  }
+}
+
+setPlacont_value(rowData: any, value: any): void {
+  debugger;
+  rowData.DPL_CONT = null;
+  (<any>this).defaultSetCellValue(rowData, value);
+}
+
+getFilteredPlantItems(options) {
+  return {
+      store: this.wfPlantDetailsItems,
+      filter: options.data ? ["PLA_CONT", "=", options.data.PLA_CONT] : null
+  };
+}
+
+initNewRowActions(e){
+
+}
+
+openPopUpActions(e){  
+  this.actionStageSelected = e.data;
+  this.actionsPopupVisible=true;
+}
+
+onEditorPreparingGridActionsDetail(e) {
+  if(e.parentType === "dataRow" && e.dataField === "DPL_CONT") {
+      e.editorOptions.disabled = (typeof e.row.data.StateID !== "number");
+  }
+}
+
 }
