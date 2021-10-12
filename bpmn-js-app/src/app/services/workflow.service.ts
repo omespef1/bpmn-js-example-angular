@@ -27,11 +27,11 @@ export class WorkflowService {
   getForSubprocess(company: number, id: number){
     return this.http.get<ActionResult<Wf_Flujo[]>>(`${this.configService.config.apiRwfEditrUrl}/${CONTROLLER}/GetSubprocessList?companyCode=${company}&consecutive=${id}`);
   }
-  setWorkFlow(xml: any, diagram:any) {
+  setWorkFlow(xml: any, diagram:any,workflow:Wf_Flujo) {
     
     console.log('xml es');
     console.log(xml);
-    let data = { xml: xml.xml, diagram: diagram }
+    let data = { xml: xml.xml, diagram: diagram, flow:workflow }
     return this.http.post<ActionResult<string>>(`${this.configService.config.apiRwfEditrUrl}/${CONTROLLER}`, data);
   }
 

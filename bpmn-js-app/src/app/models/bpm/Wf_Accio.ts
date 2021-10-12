@@ -1,4 +1,5 @@
 import { Wf_Conac } from "./Wf_Conac";
+import { Wf_Mxacc } from './Wf_Mxacc';
 
 export class Wf_Accio {
 
@@ -45,4 +46,5 @@ ACC_DEFE:number;
 ACC_COND:number;
 ACC_VALO:number;
 WF_CONAC: Wf_Conac[];
+WF_MXACC:Wf_Mxacc[];
 }

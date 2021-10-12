@@ -1,6 +1,9 @@
 import { Wf_Etapa } from './Wf_Etapa';
+import { Wf_Urepo } from './Wf_Urepo';
 export class Wf_Flujo {
-
+constructor(){
+    this.WF_UREPO = [];
+}
     EMP_CODI:number;
     FLU_CONT: number;
     FLU_NOMB: string;
@@ -33,7 +36,7 @@ export class Wf_Flujo {
     WF_AREAS:any[];
     WF_MEFLU:any[];
     WF_RFLUP:any[];
-    WF_UREPO:any[];
+    WF_UREPO:Wf_Urepo[];
 
 
 
