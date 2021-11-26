@@ -42,6 +42,7 @@ export class BrowserComponent implements OnInit {
   // @ViewChild("popUpDelegatesTree", { static: false }) popUpDelegatesTree: DxPopupComponent;
 
   @ViewChild('treeView', { static: false }) treeView: DxTreeViewComponent;
+  sending = false;
   listForms: IBrowserForm[] = [];
   segui: Wf_Segui = new Wf_Segui();
   mode = "grid";
@@ -644,7 +645,9 @@ export class BrowserComponent implements OnInit {
 
 
   nextTracing(){
+    this.sending=true;
     this.wfSeguiService.nextTracing(this.segui,this.sessionService.session.token).subscribe(resp => {
+      this.sending=false;
       if (resp != null && resp.IsSuccessful) {
         this.alertService.successSweet('Seguimiento terminado!','Perfecto!');
         this.mode='grid';

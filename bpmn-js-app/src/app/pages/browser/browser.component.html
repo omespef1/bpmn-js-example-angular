@@ -265,9 +265,16 @@
     </div>
     <div class="col col-lg-3">
 
-      <button type="button" class="btn btn-danger">Devoler</button>
-      <button (click)="nextTracing()" type="button" class="btn btn-success">
-        <i class="bi bi-check-circle"></i>
+      <button type="button" class="btn btn-danger">
+        <i class="fa fa-minus-circle" aria-hidden="true"></i>
+        <i *ngIf="sending" class="fa fa-refresh fa-spin" aria-hidden="true"></i>
+        Devoler
+
+      </button>
+    
+      <button [disabled]="sending" (click)="nextTracing()" type="button" class="btn btn-success">
+        <i *ngIf="!sending" class="bi bi-check-circle"></i>
+        <i *ngIf="sending" class="fa fa-refresh fa-spin" aria-hidden="true"></i>
      &nbsp;   Enviar</button>
     </div>
 
