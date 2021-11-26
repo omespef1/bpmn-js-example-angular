@@ -9,11 +9,11 @@ import { Wf_Accio } from './Wf_Accio';
 export class Wf_Etapa {
 
 	constructor() {
-		this.EMP_CODI = "102";
+		this.EMP_CODI =0;
 		this.FLU_CONT = 0;
 		this.ETA_CONT = 0;
 		this.ETA_ASUN = "";
-		this.GAB_CONT = "";
+		this.GAB_CONT = 0,
 		this.ETA_INST = "";
 		this.ETA_CRIA = "A";
 		this.ETA_PCOM = "S";
@@ -83,11 +83,11 @@ export class Wf_Etapa {
 		this.WF_IDOCU=[];	
 		this.WF_ACCIO =[];
 	}
-	EMP_CODI: string;
+	EMP_CODI: number;
 	FLU_CONT: number;
 	ETA_CONT: number;
 	ETA_ASUN: string;
-	GAB_CONT: string;
+	GAB_CONT: number;
 	ETA_INST: string;
 	ETA_CRIA: string;
 	ETA_PCOM: string;
@@ -156,6 +156,9 @@ export class Wf_Etapa {
 	WF_PSWET: Wf_Pswet[];
 	WF_IDOCU: Wf_Idocu[];
 	WF_ACCIO:Wf_Accio[];
+	WF_MONTO:any[];
+	WF_VREET:any[];
+
 	
 
 

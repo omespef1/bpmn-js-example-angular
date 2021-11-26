@@ -2,7 +2,7 @@ export class Wf_Fetap {
 
 constructor(){   
 
-        this.EMP_CODI=102;
+        this.EMP_CODI=0;
         this.FLU_CONT=0;
         this.ETA_CONT=0;
         this.FRM_CODI="S";

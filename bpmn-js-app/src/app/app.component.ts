@@ -1,4 +1,5 @@
 import { Component, ViewChild, OnInit } from '@angular/core';
+import { ConfigService } from './services/config.service';
 // import notify from 'devextreme/ui/notify';
 // import { WorkflowService } from './services/workflow.service';
 // import { SessionService } from './services/session.service';
@@ -13,6 +14,10 @@ import { Component, ViewChild, OnInit } from '@angular/core';
 })
 export class AppComponent implements OnInit  {
 
+
+  constructor(private configService:ConfigService){
+
+  }
   handleImported(event) {
 
     const {
@@ -33,7 +38,7 @@ export class AppComponent implements OnInit  {
   }
 
   async ngOnInit(){
-   
+    await this.configService.getAppConfig();
   }
 
 

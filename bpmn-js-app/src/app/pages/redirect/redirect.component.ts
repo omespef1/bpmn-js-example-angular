@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AuthModel, ThemeAssets } from '../../models/user.model';
+import { AuthModel, ThemeAssets, Session } from '../../models/user.model';
 import { SessionService } from '../../services/session.service';
 import { SecurityService } from '../../services/security.service';
 import { AlertService } from '../../services/alert.service';
@@ -21,10 +21,13 @@ export class RedirectComponent implements OnInit {
     private alertService: AlertService,
     private router: Router,
     private securityService: SecurityService
-  ) {}
+  ) {
+
+    
+  }
 
   ngOnInit(): void {
-    debugger;
+    
     this.sessionService.clean();
     this.activatedRoute.queryParams.subscribe(async (params) => {
       if (!params.token || !params.companyCode) {
@@ -35,17 +38,21 @@ export class RedirectComponent implements OnInit {
       this.auth = {accessToken : params.token,refreshToken:params.token};
       this.sessionService.setAuthFromLocalStorage(this.auth);
 
-      this.securityService.getSession().subscribe(
+      this.securityService.getSession(params.token).subscribe(
         (response) => {
           if (!response.isSuccessful) {
             this.alertService.error('Acceso no autorizado');
             return;
           }
           
-          this.sessionService.session = response.result;
-          this.sessionService.session.selectedCompany.code = params.companyCode;
+          let session:Session = response.result;
+          session.token = params.token;
+          session.selectedCompany.code = params.companyCode;
+          console.log(params.companyCode);
+          this.sessionService.session = response.result;              
           this.changeStyle();
-          this.router.navigateByUrl('diagram');
+          
+          this.router.navigateByUrl('browser');
         },
         (err) => {
           this.alertService.error('Acceso no autorizado');

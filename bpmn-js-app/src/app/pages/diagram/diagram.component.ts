@@ -8,7 +8,8 @@ import {
   SimpleChanges,
   Output,
   EventEmitter,
-  Input
+  Input,
+  ChangeDetectorRef
 } from '@angular/core';
 
 import { HttpClient } from '@angular/common/http';
@@ -26,9 +27,9 @@ const moddle = new BpmnModdle();
  */
 import * as BpmnJS from 'bpmn-js/dist/bpmn-modeler.production.min.js';
 
-import { BehaviorSubject, from, Observable, Subscription } from 'rxjs';
+import { BehaviorSubject, from, Observable, Subscription, throwError } from 'rxjs';
 import { Wf_Etapa } from 'src/app/models/bpm/Wf_Etapa';
-import { DxDropDownBoxComponent, DxSelectBoxComponent } from 'devextreme-angular';
+import { DxDataGridComponent, DxDropDownBoxComponent, DxFormComponent, DxSelectBoxComponent, DxTextBoxComponent, DxTreeViewComponent } from 'devextreme-angular';
 import { SessionService } from 'src/app/services/session.service';
 import { ConfigService } from 'src/app/services/config.service';
 import { WorkflowService } from '../../services/workflow.service';
@@ -61,9 +62,14 @@ import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 import { Wf_Idocu } from '../../models/bpm/Wf_Idocu';
 import { Wf_Accio } from '../../models/bpm/Wf_Accio';
 import { Wf_Dplan } from '../../models/bpm/Wf_Dplan';
-import { element } from 'protractor';
 import { Wf_Urepo } from '../../models/bpm/Wf_Urepo';
 import { Wf_Fetap } from '../../models/bpm/Wf_Fetap';
+import { GnCcaleService } from '../../services/gnccale.service';
+import { AlertService } from '../../services/alert.service';
+import { Wf_Mxacc } from '../../models/bpm/Wf_Mxacc';
+import DevExpress from 'devextreme';
+import { element } from 'protractor';
+import { threadId } from 'worker_threads';
 const UPLOAD_URL = "Upload"
 @Component({
   selector: 'app-diagram',
@@ -75,11 +81,24 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
   SESSION_ID = uuidv4();
   stagePropesrtiesItems: Wf_Etapa = new Wf_Etapa();
   @ViewChild('dropDownBoxWorflowList', { static: false }) dropDownBoxWorflowList: DxSelectBoxComponent;
+  @ViewChild('3a02429e7f2549c18bed1cb3604a0df1', { static: false }) dataGridParamters: DxDataGridComponent;
+  @ViewChild('30c0287c53f94d66a45d346d06fb4c7', { static: false }) textBoxTypeValue: DxTextBoxComponent;
+  @ViewChild('9da4823ac32c42699b4e986344e344c3', { static: false }) textBoxNewAction: DxTextBoxComponent;
+  @ViewChild('30c0287c53f94d66a45df346d06fb4c87', { static: false }) treeView: DxTreeViewComponent;
+  @ViewChild("dropDownBoxfbd32edd") dropdownNewWorkFlowFormu: DxDropDownBoxComponent;
+  @ViewChild("dropDownBoxaec8150b") dropdownNewSubProcess: DxDropDownBoxComponent;
+  @ViewChild("dropDownBoxfbd32e41") dropdownWfWebse: DxDropDownBoxComponent;
+  @ViewChild("dropDownBoxfbd32e42") dropdownWfWebseAction: DxDropDownBoxComponent;
+  @ViewChild('formStageProperties',{static:true}) formStageProperties: DxFormComponent;
+  @Input() flu_cont:number=0;
+
   elementSelected: any;
-  title = 'bpmn-js-angular';
+  title = 'EDITOR WORKFLOW';
   importError?: Error;
   closeButtonOptions: any;
+  editionMode:string;
   webServiceButton: any;
+  buttonNewAction: any;
   processButton: any;
   methodButton: any;
   closeButtonNewWorkFlowWindow: any;
@@ -93,10 +112,13 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
   closeStageFlowButton: any;
   setStageFlowButton: any;
   setNewWorkFlowButton: any;
+  buttonSetTypeField: any;
+  buttonNewActionVisible: any;
   setNewSubprocessButton: any;
   setNewAssignamentButton: any;
   setNewDestinyMailUser: any;
   popupActionsVisibleButton: any;
+  companyCode = 0;
   popupActionsWebServiceVisibleButton: any;
   popupProcessVisibleButton: any;
   newFrmasStage: any;
@@ -106,10 +128,37 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
   setNewUrepoButton: any;
   setNewFollowButton: any;
   setNewDetalFormButton: any;
-  flowListpopupVisible = false;
-  flowStagePropertiesVisible = false;
+  gridDataSource: any;
   actionStageSelected: Wf_Accio = new Wf_Accio();
+  workflowSelected: Wf_Flujo;
+  newForkFlowFormtTemp: Wf_Formu = new Wf_Formu();
+  formTypeField: string = "";
+  newForkFlowForm: Wf_Formu = new Wf_Formu();
+  newSubprocess: SubProcess = new SubProcess();
+  wfFormuList: Wf_Formu[] = [];
+  wfPlantItems: Wf_Plant[] = [];
+  wfPlantDetailsItems: Wf_Dplan[] = [];
+  usertsToAsign: Wf_Aptos[] = [];
+  urepoToAsign: Wf_Urepo[] = [];
+  delegateToAsign: Wf_Deleg[] = [];
+  destinyToAsing: Wf_Desti[] = [];
+  followToAsign: Wf_Usegu[] = [];
+  formsDetailToAsig: FormDetail[] = [];
+  wfFormasList: Wf_Frmas[] = [];
+  stageServiceMethod: Wf_Mwebs;
+  wfWebseItems: Wf_Webse[] = [];
+  WfMwebsItems: Wf_Mwebs[] = [];
+  wfPmetoItems: Wf_Pmeto[] = [];
+  rolesCompany: any[] = [];
+  usersCompany: any[] = [];
+  workflowList: any[] = [];
+  gridColumns: any = ['FLU_NOMB'];
+  gnCcaleItems: any[] = [];
+  subProcessFlowList: Wf_Flujo[] = [];
   newWorkFlowWindowVisible = false;
+  poupTypeFieldVisible = false;
+  popupNewActionVisible = false;
+  popupNewServicePopupVisible = false;
   newSubprocessVisible = false;
   newAssignamentStageVisible = false;
   assignamentDestinyMailPopupVisible = false;
@@ -120,51 +169,33 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
   popupUrepoVisible = false;
   newFollowStageVisible = false;
   newFormDetailStageVisible = false;
-  workflowSelected: Wf_Flujo = new Wf_Flujo();
-  newForkFlowFormtTemp: Wf_Formu = new Wf_Formu();
-  newForkFlowForm: Wf_Formu = new Wf_Formu();
-  newSubprocess: SubProcess = new SubProcess();
-  @ViewChild("dropDownBoxfbd32edd") dropdownNewWorkFlowFormu: DxDropDownBoxComponent;
-  @ViewChild("dropDownBoxaec8150b") dropdownNewSubProcess: DxDropDownBoxComponent;
-  @ViewChild("dropDownBoxfbd32e41") dropdownWfWebse: DxDropDownBoxComponent;
-
-  wfFormuList: Wf_Formu[] = [];
-  workflowList: any[] = [];
-  subProcessFlowList: Wf_Flujo[] = [];
+  flowListpopupVisible = false;
+  flowStagePropertiesVisible = false;
   workflowListData: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
   isGridBoxOpened: boolean;
-  gridDataSource: any;
-  gridColumns: any = ['FLU_NOMB'];
-  priorityItems = [{ text: 'Alta', id: 'A' }, { text: 'Media', id: 'M' }, { text: 'Baja', id: 'B' }];
-  wfPlantItems: Wf_Plant[] = [];
-  wfPlantDetailsItems: Wf_Dplan[] = [];
-  usertsToAsign: Wf_Aptos[] = [];
-  urepoToAsign: Wf_Urepo[] = [];
-  delegateToAsign: Wf_Deleg[] = [];
-  destinyToAsing: Wf_Desti[] = [];
-  followToAsign: Wf_Usegu[] = [];
-  formsDetailToAsig: FormDetail[] = [];
-  wfFormasList: Wf_Frmas[] = [];
+  rowSelectedParamerts: any;
   calcItems = [{ text: 'Generación etapa', id: 'G' }, { text: 'Final Calendario', id: 'C' }]
   actionsStateWorkDone = [{ text: 'Completada', id: 'C' }, { text: 'En curso', id: 'E' }]
   calendarItems = [{ text: 'Normal', id: 'J' }, { text: 'De días hábiles', id: 'H' }]
   executorsItems = [{ text: 'Usuarios/Roles', id: 'U' }, { text: 'Iniciador del proceso', id: 'I' },
   { text: 'Tarea Anterior', id: 'N' }, { text: 'Plantilla', id: 'P' }];
   yesNoItems = [{ id: 'S', text: 'Si' }, { id: 'N', text: 'No' }];
-  stageServiceMethod: Wf_Mwebs;
-  rolesCompany: any[] = [];
-  usersCompany: any[] = [];
-  wfWebseItems: Wf_Webse[] = [];
-  WfMwebsItems: Wf_Mwebs[] = [];
-  wfPmetoItems: Wf_Pmeto[] = [];
   criteryExecutors = [{ text: 'Aleatorio', id: 'A' },
   { text: 'Secuencial', id: 'S' },
   { text: 'Balanceo de Cargas', id: 'B' },
   { text: 'Seleccionable en Ejecucion', id: 'E' },
   { text: 'Todos los Usuarios', id: 'T' },
   ];
-
-
+  priorityItems = [{ text: 'Alta', id: 'A' }, { text: 'Media', id: 'M' }, { text: 'Baja', id: 'B' }];
+  states = [{ id: 'A', text: 'Activo' }, { text: 'Inactivo', id: 'I' }];
+  treeListTypeField = [{
+    id: 1, text: 'Sistema', expanded: true, items: [
+      { id: 'WF_CASOS.EMP_CODI', text: 'Empresa' },
+      { id: 'WF_CASOS.CAS_CONT', text: 'Referencia' },
+      { id: 'WF_CASOS.FLU_CONT', text: 'Proceso' }
+    ]
+  }]
+  treeNodesActions: DevExpress.ui.dxTreeViewItem[] = [];
   emptyXml = `
   '<?xml version="1.0" encoding="UTF-8"?>' +
   '<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ' +
@@ -190,7 +221,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
     {
       location: 'before', widget: 'dxButton', options: {
         icon: 'plus', text: 'Nuevo', onClick: () => {
-
+          this.workflowSelected = new Wf_Flujo(this.companyCode);
           this.newWorkFlowWindowVisible = true;
         }
       }
@@ -224,9 +255,6 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
   ];
 
 
-
-
-
   // Component
   private bpmnJS: BpmnJS;
   @ViewChild('ref', { static: true }) private el: ElementRef;
@@ -238,393 +266,417 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
     private formsService: FormService, private rolesService: RolesService, private usersService: UsersService,
     private formDetailService: FormDetailService, private stageFrmasService: StageFrmasService,
     private wfPlantService: WfPlantService, private wfWebseService: WfWebseService,
-    private wfPmetoService: WfpmetoService) {
-    var customTranslateModule = {
-      translate: ['value', customTranslate],
-    };
-
-
-    var paletteModule = {
-      __init__: ['paletteProvider'],
-      paletteProvider: ['type', paletteProvider]
-    }
-
-    this.bpmnJS = new BpmnJS({
-      additionalModules: [
-        paletteModule,
-        customTranslateModule,
-      ]
-    });
+    private wfPmetoService: WfpmetoService, private gnCcaleService: GnCcaleService, private sessionService: SessionService,
+    private alertService: AlertService, private changeDetectorRef: ChangeDetectorRef) {
 
 
 
-    this.bpmnJS.on('import.done', ({ error }) => {
-      if (!error) {
-        this.bpmnJS.get('canvas').zoom('fit-viewport');
 
+    try {
+
+
+      this.companyCode = this.session.session.selectedCompany.code;
+      this.showPopUpTemplate = this.showPopUpTemplate.bind(this);
+
+      var customTranslateModule = {
+        translate: ['value', customTranslate],
+      };
+
+
+      var paletteModule = {
+        __init__: ['paletteProvider'],
+        paletteProvider: ['type', paletteProvider]
       }
-    });
 
-    this.bpmnJS.on('commandStack.changed', () => {
-      // user modeled something or
-      // performed an undo/redo operation
-      console.log('commandStack');
-    });
+      this.bpmnJS = new BpmnJS({
+        additionalModules: [
+          paletteModule,
+          customTranslateModule,
+        ]
+      });
 
-    this.bpmnJS.on('element.changed', (event) => {
-      console.log('element.changed');
-      const element = event.element;
 
-      // the element was changed by the user
-    });
 
-    this.bpmnJS.on('element.click', (event) => {
-      console.log(event);
-      const element = event.element;
+      this.bpmnJS.on('import.done', ({ error }) => {
+        if (!error) {
+          this.bpmnJS.get('canvas').zoom('fit-viewport');
 
-      // the element was changed by the user
-    });
-    this.bpmnJS.on('element.dblclick', (event) => {
-      this.stagePropesrtiesItems = new Wf_Etapa();
-      if (event.element.WF_ETAPA == null || event.element.WF_ETAPA == undefined) {
-        event.element.WF_ETAPA = new Wf_Etapa();
-      }
-      if (event.element.type != "bpmn:Process") {
+        }
+      });
 
+      this.bpmnJS.on('commandStack.changed', () => {
+        console.log('commandStack');
+      });
+
+      this.bpmnJS.on('element.changed', (event) => {
+        console.log('element.changed');
+        const element = event.element;
+
+        // the element was changed by the user
+      });
+
+      this.bpmnJS.on('element.click', (event) => {
+        console.log(event);
+        const element = event.element;
+
+        // the element was changed by the user
+      });
+      this.bpmnJS.on('element.dblclick', (event) => {
+        // Se limpia el elemento asociado a las etapas
+        this.stagePropesrtiesItems = new Wf_Etapa();
         switch (event.element.type) {
           case 'bpmn:SequenceFlow':
             break;
+          case "bpmn:Process":
+            this.popupProcessVisible = true;
+            break;
           case 'bpmn:SubProcess':
             this.newSubprocessVisible = true;
+            this.elementSelected = event;
             break;
           case 'bpmn:StartEvent':
-
             if (event.element.businessObject.eventDefinitions != undefined &&
               event.element.businessObject.eventDefinitions.length > 0) {
               if (event.element.businessObject.eventDefinitions[0].type == "bpmn:MessageEventDefinition" || event.element.businessObject.eventDefinitions[0].$type) {
-
                 this.loadPropertiesPanel(event);
                 break;
               }
-
             }
-            else {
-              break;
-            }
-            break;
-          case '"bpmn:EndEvent':
+          case 'bpmn:EndEvent':
             break;
           default:
             this.loadPropertiesPanel(event)
             break;
         }
+        
+      });
+
+      this.eventBus = this.bpmnJS.get('eventBus');
+
+      this.eventBus.on('shape.added', (event) => {
+        console.log(event);
+        this.buildNewStage(event);
+      });
+
+
+      this.closeButtonNewWorkFlowWindow = {
+        text: "Cerrar",
+        icon: 'remove',
+        onClick: () => {
+          this.newWorkFlowWindowVisible = false;
+        }
+      };
+      this.closeButtonNewSubprocesswWindow = {
+        text: "Cerrar",
+        icon: 'remove',
+        onClick: () => {
+          this.newSubprocessVisible = false;
+        }
+      };
+
+      this.processButton = {
+        text: "Procedimiento",
+        icon: 'insertcolumnleft',
+        onClick: () => {
+          this.newSubprocessVisible = false;
+        }
+      };
+
+      this.methodButton = {
+        text: "Procedimiento",
+        icon: 'insertcolumnleft',
+        onClick: () => {
+          this.newSubprocessVisible = false;
+        }
+      };
 
 
 
+
+
+
+      this.webServiceButton = {
+        text: "Servicio web",
+        icon: 'globe',
+        onClick: () => {
+
+        }
 
 
       }
-      else {
 
-        this.popupProcessVisible = true;
-      }
-      // the element was changed by the user
-    });
+      this.buttonNewAction = {
+        text: "Nueva",
+        icon: 'plus',
+        onClick: () => {
 
-    this.eventBus = this.bpmnJS.get('eventBus');
+          this.popupNewActionVisible = true;
+        }
 
-    this.eventBus.on('shape.added', (event) => {
-      event.element.WF_ETAPA = new Wf_Etapa();
-      this.buildNewStage(event);
-    });
-
-
-    this.closeButtonNewWorkFlowWindow = {
-      text: "Cerrar",
-      icon: 'remove',
-      onClick: () => {
-        this.newWorkFlowWindowVisible = false;
-      }
-    };
-    this.closeButtonNewSubprocesswWindow = {
-      text: "Cerrar",
-      icon: 'remove',
-      onClick: () => {
-        this.newSubprocessVisible = false;
-      }
-    };
-
-    this.processButton = {
-      text: "Procedimiento",
-      icon: 'insertcolumnleft',
-      onClick: () => {
-        this.newSubprocessVisible = false;
-      }
-    };
-
-    this.methodButton = {
-      text: "Procedimiento",
-      icon: 'insertcolumnleft',
-      onClick: () => {
-        this.newSubprocessVisible = false;
-      }
-    };
-
-
-
-
-
-
-    this.webServiceButton = {
-      text: "Servicio web",
-      icon: 'globe',
-      onClick: () => {
 
       }
 
 
+      this.closeButtonNewAssignament = {
+        text: "Cerrar",
+        icon: 'remove',
+        onClick: () => {
+          this.newAssignamentStageVisible = false;
+        }
+      };
+      this.closeButtonPopUpDestiny = {
+        text: "Cerrar",
+        icon: 'remove',
+        onClick: () => {
+          this.newAssignamentStageVisible = false;
+        }
+      };
+
+
+      this.closeButtonNewDelegated = {
+        text: "Cerrar",
+        icon: 'remove',
+        onClick: () => {
+          this.newDelegatedStageVisible = false;
+        }
+      };
+
+      this.closeButtonNewFollow = {
+        text: "Cerrar",
+        icon: 'remove',
+        onClick: () => {
+          this.newDelegatedStageVisible = false;
+        }
+      };
+      this.closeButtonNewFrmas = {
+        text: "Cerrar",
+        icon: 'remove',
+        onClick: () => {
+          this.newFormDetailStageVisible = false;
+        }
+      };
+
+      this.openButtonOptions = {
+        text: "Abrir",
+        icon: 'folder',
+        onClick: () => {
+          this.flowListpopupVisible = false;
+        }
+
+      };
+
+      this.closeStageFlowButton = {
+        text: "Cerrar",
+        icon: 'folder',
+        onClick: () => {
+          this.flowStagePropertiesVisible = false;
+        }
+
+      };
+      this.setStageFlowButton = {
+        text: "Aplicar",
+        icon: 'check',
+        onClick: () => {
+          this.closePopupStageProperties();
+        }
+
+      };
+      this.setNewWorkFlowButton = {
+        text: "Aceptar",
+        icon: 'check',
+        onClick: () => {
+          this.editionMode ="POST";
+          this.newWorkFlowWindowVisible = false;
+          this.workflowSelected.FOR_CONT = this.newForkFlowFormtTemp.FOR_CONT;
+          this.workflowSelected.FLU_NOMB = this.newForkFlowFormtTemp.FOR_NOMB;
+          this.getFormFrmas();
+          this.getFlowsSubprocess();
+          this.setFormWorkFlow();
+        }
+      };
+
+
+      this.buttonSetTypeField = {
+        text: "Aceptar",
+        icon: 'check',
+        onClick: () => {
+          this.textBoxTypeValue.instance.option("value", "");
+          this.poupTypeFieldVisible = false;
+
+        }
+      }
+
+
+      this.buttonNewActionVisible = {
+        text: "Aceptar",
+        icon: 'check',
+        onClick: () => {
+          this.addNewAction()
+        }
+      }
+
+      this.setNewSubprocessButton = {
+        text: "Aceptar",
+        icon: 'check',
+        onClick: () => {
+
+          this.newSubprocessVisible = false;
+          
+          this.elementSelected.element.WF_ETAPA = new Wf_Etapa();
+          this.elementSelected.element.WF_ETAPA.ETA_ASUN = this.buildAsun(this.elementSelected);
+          this.elementSelected.element.WF_ETAPA.FLU_COND = this.newSubprocess.flu_cont;
+        }
+
+      };
+
+      this.setNewAssignamentButton = {
+        text: "Asignar",
+        icon: 'plus',
+        onClick: () => {
+          this.newAssignamentStageVisible = true;
+
+        }
+
+      };
+      this.setNewDestinyMailUser = {
+        text: "Asignar",
+        icon: 'plus',
+        onClick: () => {
+          this.assignamentDestinyMailPopupVisible = true;
+
+        }
+
+      };
+
+      this.popupActionsVisibleButton = {
+        text: "Asignar",
+        icon: 'plus',
+        onClick: () => {
+          this.actionsPopupVisible = true;
+        }
+      };
+
+
+      this.popupActionsWebServiceVisibleButton = {
+        text: "Nuevo",
+        icon: 'plus',
+        onClick: () => {
+          this.actionsWebServicePopupVisible = true;
+        }
+      };
+
+      this.popupProcessVisibleButton = {
+        text: "Asignar",
+        icon: 'plus',
+        onClick: () => {
+          this.popupProcessVisible = true;
+        }
+      };
+
+      this.newFrmasStage = {
+        text: "Nuevo",
+        icon: 'plus',
+        width: '140px',
+        onClick: () => {
+          this.newFormDetailStageVisible = true;
+        }
+
+      };
+
+      this.propertyFrmasStage = {
+        text: "Propiedad",
+        icon: 'floppy',
+        disabled: true,
+        width: '140px',
+        onClick: () => {
+          // implementar
+        }
+
+      };
+
+      this.deleteFrmasStage = {
+        text: "Borrar",
+        icon: 'deleterow',
+        width: '140px',
+        disabled: true,
+        onClick: () => {
+          // implementar
+
+        }
+
+      };
+
+      this.setNewDelegateButton = {
+        text: "Asignar",
+        icon: 'plus',
+        onClick: () => {
+          this.newDelegatedStageVisible = true;
+        }
+      };
+
+
+      this.setNewUrepoButton = {
+        text: "Asignar",
+        icon: 'plus',
+        onClick: () => {
+          this.popupUrepoVisible = true;
+
+        }
+
+      };
+      this.setNewFollowButton = {
+        text: "Asignar",
+        icon: 'plus',
+        onClick: () => {
+          this.newFollowStageVisible = true;
+
+        }
+
+      };
+
+      this.setNewDetalFormButton = {
+        text: "Nuevo",
+        icon: 'plus',
+        onClick: () => {
+          this.newFormDetailStageVisible = true;
+
+        }
+
+      };
+
+      this.fileAllowedExtensions = [
+        ".pdf",
+        ".doc",
+        ".docx",
+        ".jpeg",
+        ".jpg",
+        ".png",
+        ".PNG"
+      ]
+    } catch (error) {
+      this.alertService.errorSweet(error, "Error");
     }
 
-
-    this.closeButtonNewAssignament = {
-      text: "Cerrar",
-      icon: 'remove',
-      onClick: () => {
-        this.newAssignamentStageVisible = false;
-      }
-    };
-    this.closeButtonPopUpDestiny = {
-      text: "Cerrar",
-      icon: 'remove',
-      onClick: () => {
-        this.newAssignamentStageVisible = false;
-      }
-    };
-
-
-    this.closeButtonNewDelegated = {
-      text: "Cerrar",
-      icon: 'remove',
-      onClick: () => {
-        this.newDelegatedStageVisible = false;
-      }
-    };
-
-    this.closeButtonNewFollow = {
-      text: "Cerrar",
-      icon: 'remove',
-      onClick: () => {
-        this.newDelegatedStageVisible = false;
-      }
-    };
-    this.closeButtonNewFrmas = {
-      text: "Cerrar",
-      icon: 'remove',
-      onClick: () => {
-        this.newFormDetailStageVisible = false;
-      }
-    };
-
-    this.openButtonOptions = {
-      text: "Abrir",
-      icon: 'folder',
-      onClick: () => {
-        this.flowListpopupVisible = false;
-      }
-
-    };
-
-    this.closeStageFlowButton = {
-      text: "Cerrar",
-      icon: 'folder',
-      onClick: () => {
-        this.flowStagePropertiesVisible = false;
-      }
-
-    };
-    this.setStageFlowButton = {
-      text: "Aplicar",
-      icon: 'check',
-      onClick: () => {
-
-        this.flowStagePropertiesVisible = false;
-        this.elementSelected.element.WF_ETAPA = this.stagePropesrtiesItems;
-        this.stagePropesrtiesItems = new Wf_Etapa();
-      }
-
-    };
-    this.setNewWorkFlowButton = {
-      text: "Aceptar",
-      icon: 'check',
-      onClick: () => {
-        this.newWorkFlowWindowVisible = false;
-        this.workflowSelected.FOR_CONT = this.newForkFlowFormtTemp.FOR_CONT;
-        this.getFormFrmas();
-        this.getFlowsSubprocess();
-        this.setFormWorkFlow();
-      }
-
-    };
-    this.setNewSubprocessButton = {
-      text: "Aceptar",
-      icon: 'check',
-      onClick: () => {
-
-        this.newSubprocessVisible = false;
-        this.elementSelected.element.WF_ETAPA = new Wf_Etapa();
-        this.elementSelected.element.WF_ETAPA.FLU_COND = this.newSubprocess.flu_cont;
-      }
-
-    };
-
-    this.setNewAssignamentButton = {
-      text: "Asignar",
-      icon: 'plus',
-      onClick: () => {
-        this.newAssignamentStageVisible = true;
-
-      }
-
-    };
-    this.setNewDestinyMailUser = {
-      text: "Asignar",
-      icon: 'plus',
-      onClick: () => {
-        this.assignamentDestinyMailPopupVisible = true;
-
-      }
-
-    };
-
-    this.popupActionsVisibleButton = {
-      text: "Asignar",
-      icon: 'plus',
-      onClick: () => {
-        this.actionsPopupVisible = true;
-
-      }
-
-    };
-
-
-    this.popupActionsWebServiceVisibleButton = {
-      text: "Asignar",
-      icon: 'plus',
-      onClick: () => {
-        this.actionsWebServicePopupVisible = true;
-
-      }
-
-    };
-
-    this.popupProcessVisibleButton = {
-      text: "Asignar",
-      icon: 'plus',
-      onClick: () => {
-        this.popupProcessVisible = true;
-
-      }
-
-    };
-
-
-
-
-
-
-    this.newFrmasStage = {
-      text: "Nuevo",
-      icon: 'plus',
-      width: '140px',
-      onClick: () => {
-        this.newFormDetailStageVisible = true;
-      }
-
-    };
-
-    this.propertyFrmasStage = {
-      text: "Propiedad",
-      icon: 'floppy',
-      disabled: true,
-      width: '140px',
-      onClick: () => {
-        // implementar
-      }
-
-    };
-
-
-    this.deleteFrmasStage = {
-      text: "Borrar",
-      icon: 'deleterow',
-      width: '140px',
-      disabled: true,
-      onClick: () => {
-        // implementar
-
-      }
-
-    };
-    this.setNewDelegateButton = {
-      text: "Asignar",
-      icon: 'plus',
-      onClick: () => {
-        this.newDelegatedStageVisible = true;
-
-      }
-
-    };
-
-
-    this.setNewUrepoButton = {
-      text: "Asignar",
-      icon: 'plus',
-      onClick: () => {
-        this.popupUrepoVisible = true;
-
-      }
-
-    };
-    this.setNewFollowButton = {
-      text: "Asignar",
-      icon: 'plus',
-      onClick: () => {
-        this.newFollowStageVisible = true;
-
-      }
-
-    };
-
-    this.setNewDetalFormButton = {
-      text: "Nuevo",
-      icon: 'plus',
-      onClick: () => {
-        this.newFormDetailStageVisible = true;
-
-      }
-
-    };
-
-    this.fileAllowedExtensions = [
-      ".pdf",
-      ".doc",
-      ".docx",
-      ".jpeg",
-      ".jpg",
-      ".png",
-      ".PNG"
-    ]
 
   }
 
   loadPropertiesPanel(event) {
-    console.log(event);
+    console.log(event);  
+    this.elementSelected = event;  
     this.flowStagePropertiesVisible = true;
+    
     this.stagePropesrtiesItems = event.element.WF_ETAPA;
-    this.elementSelected = event;
+    //  this.formStageProperties.instance.updateData(this.stagePropesrtiesItems);
+  }
+
+  closePopupStageProperties() {
+    if (!this.validWF_PSWET())
+      return;
+    this.elementSelected.element.WF_ETAPA = this.stagePropesrtiesItems;
+    this.stagePropesrtiesItems = new Wf_Etapa();
+    this.flowStagePropertiesVisible = false;
   }
   handleImported(event) {
-
     const {
       type,
       error,
@@ -643,14 +695,31 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
   }
 
   async ngOnInit() {
-    await this.configService.getAppConfig();
-    this.getWorkflowList();
-    this.GetWfFormu();
-    this.getUsertsToAsign();
-    this.getWfPlant();
+    
+    try {
+      if (this.sessionService.session == undefined) {
 
-    this.getWfWebseByCompany();
-    // this.initEmpty();
+        throw new Error("Acceso no autorizado");
+
+      }
+
+      //  await this.configService.getAppConfig();
+      this.getWorkflowList();
+      this.GetWfFormu();
+      this.getUsertsToAsign();
+      this.getWfPlant();
+      this.getWfWebseByCompany();
+      this.getGnCcale();
+      // this.initEmpty();
+      if(this.flu_cont>0){
+       this.loadFlow(this.flu_cont);
+      }
+
+
+    } catch (error) {
+
+    }
+
 
   }
   GetWfFormu() {
@@ -660,8 +729,14 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
       }
     })
   }
+  getGnCcale() {
+    this.gnCcaleService.Get().subscribe(resp => {
+      if (resp != null && resp.IsSuccessful)
+        this.gnCcaleItems = resp.Result;
+    })
+  }
   getWorkflowList() {
-    this.WorkflowService.getWorkFlowByCompany("102").subscribe(resp => {
+    this.WorkflowService.getWorkFlowByCompany(this.companyCode).subscribe(resp => {
       if (resp.IsSuccessful) {
         this.workflowList = resp.Result;
 
@@ -672,7 +747,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
   }
 
   getWfPlant() {
-    this.wfPlantService.getByCompany(102).subscribe(resp => {
+    this.wfPlantService.getByCompany(this.companyCode).subscribe(resp => {
       if (resp.IsSuccessful && resp.Result != null) {
 
         this.wfPlantItems = resp.Result;
@@ -684,14 +759,10 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
 
 
   getWfPlantDetails() {
-    this.wfPlantService.getAllDetails(102).subscribe(resp => {
+    this.wfPlantService.getAllDetails(this.companyCode).subscribe(resp => {
       if (resp.IsSuccessful && resp.Result != null) {
-
         this.wfPlantDetailsItems = resp.Result;
-
         this.getFilteredPlantItems = this.getFilteredPlantItems.bind(this);
-
-
       }
     })
   }
@@ -699,43 +770,38 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
   getFormFrmas() {
     this.stageFrmasService.getWfFrmas(this.workflowSelected.FOR_CONT).subscribe(resp => {
       if (resp.IsSuccessful && resp.Result != null) {
-
         this.wfFormasList = resp.Result;
       }
     })
   }
 
   getUsertsToAsign() {
-
-    this.rolesService.getWfRoles(102).subscribe(rolesResp => {
+    this.rolesService.getWfRoles(this.companyCode).subscribe(rolesResp => {
       if (rolesResp.IsSuccessful && rolesResp != null) {
-
         this.rolesCompany = rolesResp.Result;
-
-        this.usersService.getUsers(102).subscribe(usersResp => {
+        this.usersService.getUsers(this.companyCode).subscribe(usersResp => {
           if (usersResp.IsSuccessful && usersResp != null) {
-
             this.usersCompany = usersResp.Result;
             if (this.rolesCompany != null && this.rolesCompany.length > 0) {
               this.rolesCompany.forEach(role => {
                 this.usertsToAsign.push({
-                  EMP_CODI: 102, ETA_CONT: this.stagePropesrtiesItems.ETA_CONT, FLU_CONT: this.stagePropesrtiesItems.FLU_CONT, APT_DEST: role.ROL_CODI,
+                  EMP_CODI: this.companyCode, ETA_CONT: this.stagePropesrtiesItems.ETA_CONT, FLU_CONT: this.stagePropesrtiesItems.FLU_CONT, APT_DEST: role.ROL_CODI,
                   APT_TDES: 'R', AUD_ESTA: 'A', AUD_UFAC: new Date(), AUD_USUA: 'Seven12'
                 });
                 this.delegateToAsign.push({
-                  EMP_CODI: 102, ETA_CONT: this.stagePropesrtiesItems.ETA_CONT, FLU_CONT: this.stagePropesrtiesItems.FLU_CONT, DEL_DEST: role.ROL_CODI,
+                  EMP_CODI: this.companyCode, ETA_CONT: this.stagePropesrtiesItems.ETA_CONT, FLU_CONT: this.stagePropesrtiesItems.FLU_CONT, DEL_DEST: role.ROL_CODI,
                   DEL_TDES: 'R', AUD_ESTA: 'A', AUD_UFAC: new Date(), AUD_USUA: 'Seven12'
                 });
                 this.followToAsign.push({
-                  EMP_CODI: 102, ETA_CONT: this.stagePropesrtiesItems.ETA_CONT, FLU_CONT: this.stagePropesrtiesItems.FLU_CONT, USE_DEST: role.ROL_CODI,
+                  EMP_CODI: this.companyCode, ETA_CONT: this.stagePropesrtiesItems.ETA_CONT, FLU_CONT: this.stagePropesrtiesItems.FLU_CONT, USE_DEST: role.ROL_CODI,
                   USE_TDES: 'R', AUD_ESTA: 'A', AUD_UFAC: new Date(), AUD_USUA: 'Seven12'
                 });
                 this.destinyToAsing.push({
-                  EMP_CODI: 102, ETA_CONT: this.stagePropesrtiesItems.ETA_CONT, FLU_CONT: this.stagePropesrtiesItems.FLU_CONT, DES_DEST: role.ROL_CODI,
+                  EMP_CODI: this.companyCode, ETA_CONT: this.stagePropesrtiesItems.ETA_CONT, FLU_CONT: this.stagePropesrtiesItems.FLU_CONT, DES_DEST: role.ROL_CODI,
                   DES_TDES: 'R', AUD_ESTA: 'A', AUD_UFAC: new Date(), AUD_USUA: 'Seven12', DPL_CONT: 0, PLA_CONT: 0
                 });
                 this.urepoToAsign.push({
-                  EMP_CODI: 102, FLU_CONT: this.stagePropesrtiesItems.FLU_CONT, URE_DEST: role.ROL_CODI,
+                  EMP_CODI: this.companyCode, FLU_CONT: this.stagePropesrtiesItems.FLU_CONT, URE_DEST: role.ROL_CODI,
                   URE_TDES: 'R', AUD_ESTA: 'A', AUD_UFAC: new Date(), AUD_USUA: 'Seven12'
                 });
               });
@@ -744,32 +810,28 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
             if (this.usersCompany != null && this.usersCompany.length > 0) {
               this.usersCompany.forEach(user => {
                 this.usertsToAsign.push({
-                  EMP_CODI: 102, ETA_CONT: this.stagePropesrtiesItems.ETA_CONT, FLU_CONT: this.stagePropesrtiesItems.FLU_CONT, APT_DEST: user.USU_CODI,
+                  EMP_CODI: this.companyCode, ETA_CONT: this.stagePropesrtiesItems.ETA_CONT, FLU_CONT: this.stagePropesrtiesItems.FLU_CONT, APT_DEST: user.USU_CODI,
                   APT_TDES: 'U', AUD_ESTA: 'A', AUD_UFAC: new Date(), AUD_USUA: 'Seven12'
                 })
                 this.delegateToAsign.push({
-                  EMP_CODI: 102, ETA_CONT: this.stagePropesrtiesItems.ETA_CONT, FLU_CONT: this.stagePropesrtiesItems.FLU_CONT, DEL_DEST: user.USU_CODI,
+                  EMP_CODI: this.companyCode, ETA_CONT: this.stagePropesrtiesItems.ETA_CONT, FLU_CONT: this.stagePropesrtiesItems.FLU_CONT, DEL_DEST: user.USU_CODI,
                   DEL_TDES: 'U', AUD_ESTA: 'A', AUD_UFAC: new Date(), AUD_USUA: 'Seven12'
                 });
                 this.followToAsign.push({
-                  EMP_CODI: 102, ETA_CONT: this.stagePropesrtiesItems.ETA_CONT, FLU_CONT: this.stagePropesrtiesItems.FLU_CONT, USE_DEST: user.USU_CODI,
+                  EMP_CODI: this.companyCode, ETA_CONT: this.stagePropesrtiesItems.ETA_CONT, FLU_CONT: this.stagePropesrtiesItems.FLU_CONT, USE_DEST: user.USU_CODI,
                   USE_TDES: 'U', AUD_ESTA: 'A', AUD_UFAC: new Date(), AUD_USUA: 'Seven12'
                 });
-
                 this.destinyToAsing.push({
-                  EMP_CODI: 102, ETA_CONT: this.stagePropesrtiesItems.ETA_CONT, FLU_CONT: this.stagePropesrtiesItems.FLU_CONT, DES_DEST: user.USU_CODI,
+                  EMP_CODI: this.companyCode, ETA_CONT: this.stagePropesrtiesItems.ETA_CONT, FLU_CONT: this.stagePropesrtiesItems.FLU_CONT, DES_DEST: user.USU_CODI,
                   DES_TDES: 'U', AUD_ESTA: 'A', AUD_UFAC: new Date(), AUD_USUA: 'Seven12', DPL_CONT: 0, PLA_CONT: 0
                 });
                 this.urepoToAsign.push({
-                  EMP_CODI: 102, FLU_CONT: this.stagePropesrtiesItems.FLU_CONT, URE_DEST: user.USU_CODI,
+                  EMP_CODI: this.companyCode, FLU_CONT: this.stagePropesrtiesItems.FLU_CONT, URE_DEST: user.USU_CODI,
                   URE_TDES: 'U', AUD_ESTA: 'A', AUD_UFAC: new Date(), AUD_USUA: 'Seven12'
                 });
               });
             }
-
-
           }
-
           this.usertsToAsign.sort((a, b) => (a.APT_DEST > b.APT_DEST) ? 1 : ((b.APT_DEST > a.APT_DEST) ? -1 : 0))
           this.delegateToAsign.sort((a, b) => (a.DEL_DEST > b.DEL_DEST) ? 1 : ((b.DEL_DEST > a.DEL_DEST) ? -1 : 0))
           this.followToAsign.sort((a, b) => (a.USE_DEST > b.USE_DEST) ? 1 : ((b.USE_DEST > a.USE_DEST) ? -1 : 0))
@@ -780,7 +842,6 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
 
 
   getFormsDetail(for_cont) {
-
     this.formDetailService.GetDetailFormList(for_cont).subscribe(resp => {
       if (resp.IsSuccessful && resp.Result != null) {
         this.formsDetailToAsig = resp.Result;
@@ -790,9 +851,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
 
 
   getFlowsSubprocess() {
-
     var filter = this.workflowSelected.FLU_CONT == undefined ? -1 : this.workflowSelected.FLU_CONT;
-    this.WorkflowService.getForSubprocess(102, filter).subscribe(resp => {
+    this.WorkflowService.getForSubprocess(this.companyCode, filter).subscribe(resp => {
       if (resp.IsSuccessful && resp.Result != null)
         this.subProcessFlowList = resp.Result;
     })
@@ -802,33 +862,27 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
   }
 
   setFlowSelected(e) {
-
-
     if (e.data != null) {
-
       this.flowListpopupVisible = false;
+      
+      this.editionMode="GET"
       this.loadFlow(e.data.FLU_CONT);
     }
-
-
   }
 
   loadFlow(id) {
-    this.WorkflowService.getWorkFlowById(102, id).subscribe(resp => {
+    this.WorkflowService.getWorkFlowById(this.companyCode, id).subscribe(resp => {
       if (resp.IsSuccessful && resp.Result != null) {
         // this.workflowSelected = resp.Result;
-        this.buildXml(resp.Result);
+        this.buildXml(resp.Result.xml);
+        this.workflowSelected = resp.Result.flow;
         // this.WorkflowService.buildXml();
       }
     })
   }
 
-
-
   ngAfterContentInit(): void {
     this.bpmnJS.attachTo(this.el.nativeElement);
-
-
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -896,22 +950,18 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
     );
   }
 
-
   saveXml() {
     const rootElement = this.bpmnJS.get('canvas').getRootElement();
     console.log(rootElement);
     this.bpmnJS.saveXML().then((xml) => {
       console.log(xml);
-      this.WorkflowService.setWorkFlow(xml, rootElement,this.workflowSelected).subscribe(resp => {
+      this.WorkflowService.setWorkFlow(xml, rootElement, this.workflowSelected).subscribe(resp => {
         console.log(resp);
         if (resp.Result != null && resp.IsSuccessful) {
-
           notify('Flujo creado correctamente', 'success', 5000);
         }
       })
-
     });
-
   }
 
   getYesOrno(value: string) {
@@ -921,16 +971,13 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
       else
         return false;
     }
-
   }
 
   setYesOrno(e) {
-
     if (e == "N")
       this.stagePropesrtiesItems.ETA_INIC == "N"
     else
       this.stagePropesrtiesItems.ETA_INIC == "S"
-
   }
 
   init(e) {
@@ -948,7 +995,6 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
   private importDiagram(xml: string): Observable<{ warnings: Array<any> }> {
     return from(this.bpmnJS.importXML(xml) as Promise<{ warnings: Array<any> }>);
   }
-
   async buildXml(xmlData: string) {
 
     let xml = xmlData;
@@ -958,97 +1004,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
 
   }
 
-
-  addNewProcess(id: number, isExecutable: boolean) {
-
-    // Agregar elemento bpmn:process con id  nuevo basado en companyCode y consecutivo
-  }
-
-  addStartEvent(id: string, name: string) {
-
-    // Homólogo Seven => WF_ETAPA
-
-    // Agregar elemento startEvent, atributo id basado en companyCode y consecutivo, atributo name es el nombre de la etapa
-
-    // nodo hijo bpmn:outgoing define en punto de unión saliente, debe tener el id del sequenceflow que lo conecta
-
-
-    //   nodo hijo bpmn:outgoing es la ruta saliente
-  }
-
-  addUserTask() {
-
-    // Homólogo Seven => WF_ETAPA
-    // Agregar el elemento bpmn:userTask
-
-    // nodo hijo bpmn:incoming en punto de unión entrante, debe tener el id del sequenceflow que lo conecta
-
-
-    //   nodo hijo bpmn:outgoing es la ruta saliente, debe tener el id del sequenceflow que lo conecta
-
-
-
-    // Atributi id autogenerado 
-
-    // Atributo name es el nombre de la etapa
-  }
-
-
-  addExclusiveDoor() {
-    // Homólogo Seven => WF_ETAPA
-    // Agregar elemento exclusiveGateway
-
-    // nodo hijo bpmn:incoming en puntos de unión entrante, debe tener el id del sequenceflow que lo conecta
-
-
-    //   nodo hijo bpmn:outgoing es puntos de unión saliente, debe tener el id del sequenceflow que lo conecta
-
-
-  }
-
-
-  addSequenceFlow() {
-    // Homólogo Seven => WF_RUTAS
-
-
-    // Elemento bpmn:sequenceFlow
-
-    //Atributo id => Autogenerado, pero debe ser referenciado en los puntos conecttores
-
-    // sourceRef => Tarea desde la cual sale la flecha
-    // targetRef => Tarea destino de la flecha
-
-
-  }
-
-  addEndEvent() {
-    // Homólogo Seven => WF_ETAPA
-    //Atributo id => Autogenerado, pero debe ser referenciado en los targetRef o sourceRef de las flechas
-  }
-
-  addDiagram() {
-
-    //  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
-    // Elementp bpmndi:BPMNDiagram
-
-    // id= Autogenerado
-
-  }
-  addBpmPlane() {
-
-    // Elementp bpmndi:BPMNPlane
-  }
-
-  readStages() {
-
-    // Debe leer todas las etapas con eta_cont > 0
-  }
-
-
-
   setFormWorkFlowTemp(e) {
     this.newForkFlowFormtTemp = e.data;
-
     this.dropdownNewWorkFlowFormu.instance.close();
   }
 
@@ -1082,10 +1039,10 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
   setFormWorkFlow() {
     this.initEmpty();
     this.newWorkFlowWindowVisible = false;
-
   }
 
   initEmpty() {
+    this.bpmnJS.clear();
     this.bpmnJS.importXML(this.emptyXml);
     const rootElement = this.bpmnJS.get('canvas').getRootElement();
     rootElement.id = this.SESSION_ID;
@@ -1108,15 +1065,21 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
     this.newSubprocess.flu_nomb = e.data.FLU_NOMB;
     this.dropdownNewSubProcess.instance.close();
   }
-  // this.eventBus.on('shape.added', (event) => {
-  //   event.element.WF_ETAPA = new Wf_Etapa();
-  // });
+
 
   buildNewStage(event) {
+
+      if(this.editionMode=="POST")
     event.element.WF_ETAPA = new Wf_Etapa();
     event.element.WF_ETAPA.ETA_ASUN = this.buildAsun(event);
     event.element.businessObject.name = event.element.WF_ETAPA.ETA_ASUN;
-
+    if(this.editionMode=="GET"){
+      let nameStage:string = event.element.id;
+      
+      
+      event.element.WF_ETAPA = this.workflowSelected.WF_ETAPAS.filter(e=>e.ETA_CONT == Number(nameStage.split('_')[3]));    
+      event.element.businessObject.name = event.element.WF_ETAPA.ETA_ASUN;
+    }
 
   }
 
@@ -1126,10 +1089,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
         if (event.element.businessObject.eventDefinitions != undefined &&
           event.element.businessObject.eventDefinitions.length > 0) {
           if (event.element.businessObject.eventDefinitions[0].type == "bpmn:MessageEventDefinition" || event.element.businessObject.eventDefinitions[0].$type) {
-
             return "Inicio con mensaje"
           }
-
         }
         else {
           return "Inicio";
@@ -1152,10 +1113,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
         if (event.element.businessObject.eventDefinitions != undefined &&
           event.element.businessObject.eventDefinitions.length > 0) {
           if (event.element.businessObject.eventDefinitions[0].type == "bpmn:TerminateEventDefinition" || event.element.businessObject.eventDefinitions[0].$type) {
-
             return "Finalización Proceso";
           }
-
         }
         else {
           return "Finalización corriente";
@@ -1174,11 +1133,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
         return event.element.businessObject.name;
       case "bpmn:SubProcess":
         return "Subproceso";
-
       default:
         return "Elemento no mapeado";
-
-
 
     }
 
@@ -1186,7 +1142,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
 
 
   getWfWebseByCompany() {
-    this.wfWebseService.getByCompany(102).subscribe(resp => {
+    this.wfWebseService.getByCompany(this.companyCode).subscribe(resp => {
       if (resp.IsSuccessful && resp.Result != null) {
         this.wfWebseItems = resp.Result;
 
@@ -1200,12 +1156,11 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
     this.stagePropesrtiesItems.WEB_CONT = e.data.WEB_CONT;
     this.stagePropesrtiesItems.MWE_CONT = e.data.MWE_CONT;
     this.stageServiceMethod = e.data;
-    // this.getWfPmetoByService(102,this.stagePropesrtiesItems.WEB_CONT,this.stagePropesrtiesItems.MWE_CONT);
-    this.wfPmetoService.getByService(102, this.stagePropesrtiesItems.WEB_CONT = e.data.WEB_CONT, this.stagePropesrtiesItems.MWE_CONT = e.data.MWE_CONT).subscribe(resp => {
-      debugger;
+    // this.getWfPmetoByService(this.companyCode,this.stagePropesrtiesItems.WEB_CONT,this.stagePropesrtiesItems.MWE_CONT);
+    this.wfPmetoService.getByService(this.companyCode, this.stagePropesrtiesItems.WEB_CONT = e.data.WEB_CONT, this.stagePropesrtiesItems.MWE_CONT = e.data.MWE_CONT).subscribe(resp => {
+
       if (resp.IsSuccessful && resp.Result != null) {
         this.wfPmetoItems = resp.Result;
-        debugger;
         // Llenar un wf_pswet con un wf_pmeto
         resp.Result.forEach(element => {
           let wfpswet: Wf_Pswet = {
@@ -1230,18 +1185,13 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
             CAM_CODI: "",
             AUD_USUA: "",
             PSW_TVAL: "C",
-            DPL_CONT: 0
+            DPL_CONT: 0,
+            PME_TIPO: element.PME_TIPO,
+            PME_CLAS: element.PME_CLAS
           }
-
-
           this.stagePropesrtiesItems.WF_PSWET.push(wfpswet)
-
-
         }
-
-
         );
-
       }
     })
     this.dropdownWfWebse.instance.close();
@@ -1306,9 +1256,6 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
         return true;
     }
 
-
-
-
   }
 
   tabExecutorsVisibility() {
@@ -1325,9 +1272,6 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
 
 
   tabFollowUpVisibility() {
-
-
-
     switch (this.elementSelected.element.type) {
       case "bpmn:StartEvent":
         if (this.elementSelected.element.businessObject.eventDefinitions != undefined &&
@@ -1344,13 +1288,10 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
       default:
         return true;
     }
-    // inicio con mensaje
-    /// tarea de usuario
+ 
   }
 
   tabActionsVisibility() {
-
-
     switch (this.elementSelected.element.type) {
       case "bpmn:ExclusiveGateway":
         return false;
@@ -1413,49 +1354,43 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
     else
       return true;
   }
-  // getWfPmetoByService(emp_codi: number, web_cont: number, mwe_cont: number) {
-  //   this.wfPmetoService.getByService(emp_codi, web_cont, mwe_cont).subscribe(resp => {
 
-  //     if (resp.IsSuccessful && resp.Result != null) {
-  //       this.wfPmetoItems = resp.Result;
-  //     }
-  //   })
-  // }
 
   test(options) {
-    //   if (options.parentType == 'dataRow') {  
-    //     if (options.dataField == 'name') {  
-    //         options.editorElement.dxTextBox('instance').option('onValueChanged', function (e) {  
-    //             options.component.getCellElement(options.row.rowIndex, "name1").find(".dx-textbox").dxTextBox("instance").option("value", "new value");  
-    //         });  
-    //     }  
-    // }  
-    debugger;
-    // if (options.dataField === 'PSW_VALO' && options.parentType === 'dataRow') {
-    //   options.component.getCellElement(options.row.rowIndex, "PSW_TVAL")      
-    // }
-
+    
   }
   calculatedDataType(rowData) {
     if (this.wfPmetoItems != null && this.wfPmetoItems.length > 0) {
-      return this.wfPmetoItems.filter(t => t.EMP_CODI && 102 && t.WEB_CONT == this.stagePropesrtiesItems.WEB_CONT && t.MWE_CONT == this.stagePropesrtiesItems.MWE_CONT)[0].PME_TIPO;
+      var data = this.wfPmetoItems.filter(t => t.EMP_CODI && this.companyCode && t.WEB_CONT == this.stagePropesrtiesItems.WEB_CONT && t.MWE_CONT == this.stagePropesrtiesItems.MWE_CONT)[0].PME_TIPO;
+      switch (data) {
+        case "N":
+          return "Número";
+        case "C":
+          return "string";
+        case "F":
+          return "Fecha";
+        case "E":
+          return "Estructura";
+        default:
+          return "";
+      }
     }
     return "";
+
   }
   calculatedClass(rowData) {
+    
     if (this.wfPmetoItems != null && this.wfPmetoItems.length > 0) {
-      return this.wfPmetoItems.filter(t => t.EMP_CODI && 102 && t.WEB_CONT == this.stagePropesrtiesItems.WEB_CONT && t.MWE_CONT == this.stagePropesrtiesItems.MWE_CONT)[0].PME_CLAS;
+      return this.wfPmetoItems.filter(t => t.EMP_CODI && this.companyCode && t.WEB_CONT == this.stagePropesrtiesItems.WEB_CONT && t.MWE_CONT == this.stagePropesrtiesItems.MWE_CONT)[0].PME_CLAS;
     }
     return "";
   }
 
   calculatedSecu(rowData) {
-
     if (this.wfPmetoItems != null && this.wfPmetoItems.length > 0) {
-      return this.wfPmetoItems.filter(t => t.EMP_CODI && 102 && t.WEB_CONT == this.stagePropesrtiesItems.WEB_CONT && t.MWE_CONT == this.stagePropesrtiesItems.MWE_CONT)[0].PME_SECU;
+      return this.wfPmetoItems.filter(t => t.EMP_CODI && this.companyCode && t.WEB_CONT == this.stagePropesrtiesItems.WEB_CONT && t.MWE_CONT == this.stagePropesrtiesItems.MWE_CONT)[0].PME_SECU;
     }
     return "";
-
   }
 
   beforeSend() {
@@ -1465,9 +1400,6 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
   }
 
   addIdParameter(e) {
-
-
-
     let uploadUrl = this.updateQueryStringParameter(
       `${this.configService.config.apiRwfEditrUrl}${UPLOAD_URL}`,
       "uuid",
@@ -1521,17 +1453,14 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
     }
   }
 
-
   addNewWfFetap(e) {
-
-
     const index = this.wfFormasList.indexOf(e.data, 0);
-if (index > -1) {
-   this.wfFormasList.splice(index, 1);
-}
+    if (index > -1) {
+      this.wfFormasList.splice(index, 1);
+    }
     let newFetap: Wf_Fetap = {
 
-      EMP_CODI: 102,
+      EMP_CODI: this.companyCode,
       FLU_CONT: this.workflowSelected.FLU_CONT,
       ETA_CONT: this.stagePropesrtiesItems.ETA_CONT,
       FRM_CODI: e.data.FRM_CODI,
@@ -1548,9 +1477,126 @@ if (index > -1) {
 
     };
     this.stagePropesrtiesItems.WF_FETAP.push(newFetap);
-    this.newFormDetailStageVisible=false;
+    this.newFormDetailStageVisible = false;
+  }
+
+  showPopUpTemplate(e) {
+    let row: Wf_Pswet = e.row.data;
+    this.rowSelectedParamerts = e.row;
+    this.poupTypeFieldVisible = true;
+
+  }
+
+  selectTypeField(e) { 
+    if (e.itemData.id != "1") {
+      this.rowSelectedParamerts.data.PSW_VALO = e.itemData.id;
+      this.poupTypeFieldVisible = false;
+    }
+
+  }
+
+  selectTypeFieldTxt(e) {
+
+    let data: string = e.value;
+    if (data != "") {
+      this.rowSelectedParamerts.data.PSW_VALO = data;
+    }
 
 
   }
+
+
+  setNewActionName(e) {
+
+    let data: string = e.value;
+    if (data != "") {
+      this.stagePropesrtiesItems.WF_ACCIO.push
+    }
+  }
+
+  addNewAction() {
+
+    let name: string = this.textBoxNewAction.value;
+    if (name != "") {
+      let action: Wf_Accio = new Wf_Accio();
+      action.EMP_CODI = this.companyCode;
+      action.FLU_CONT = this.workflowSelected.FLU_CONT;
+      action.ETA_CONT = this.stagePropesrtiesItems.ETA_CONT;
+      action.ACC_CONT = this.stagePropesrtiesItems.WF_ACCIO.length == 0 ? 1 : Math.max.apply(Math, this.stagePropesrtiesItems.WF_ACCIO.map(function (o) { return o.ACC_CONT; })) + 1;
+      action.ACC_NOMB = name;
+      action.ACC_ESTA = name.toUpperCase();
+      action.ACC_ABRE = name.length < 3 ? name : name.substring(0, 3);
+      action.AUD_ESTA = "A";
+      action.PLA_CONT = 0;
+      action.DPL_CONT = 0;
+      action.ACC_DEFE = "N";
+      action.ACC_ESTT = "C"
+      this.stagePropesrtiesItems.WF_ACCIO.push(action);
+      this.treeNodesActions.push({ parentId: action.ACC_CONT, text: action.ACC_NOMB, expanded: true, items: [] })
+      this.textBoxNewAction.value = "";
+      this.popupNewActionVisible = false;
+    }
+  }
+
+  selectAction(e) {  
+    this.actionStageSelected = this.stagePropesrtiesItems.WF_ACCIO.filter(a => a.ACC_CONT == e.itemData.parentId)[0];
+  }
+
+  validWF_PSWET() {  
+    if (this.stagePropesrtiesItems.WF_PSWET != null && this.stagePropesrtiesItems.WF_PSWET.filter(p => p.PSW_VALO.length == 0).length > 0) {
+      this.alertService.error("Pestaña Servicio web: Todos los parámetros necesitan un campo a utilizar")
+      return false;
+    }
+    return true;
+  }
+
+
+
+  openModalNewAction() {
+
+    this.popupNewActionVisible = true;
+  }
+
+  openPopupService() {
+
+    this.popupNewServicePopupVisible = true;
+  }
+
+  openPopupMethod() {
+
+  }
+
+  deleteAction() {
+
+  }
+  openPopupProcess() {
+
+  }
+
+  addNewMxAcc(e: any) {
+    console.log(e);
+    let data: Wf_Mxacc = new Wf_Mxacc();
+    data.EMP_CODI = this.workflowSelected.EMP_CODI;
+    data.FLU_CONT = this.workflowSelected.FLU_CONT;
+    data.ACC_CONT = this.actionStageSelected.ACC_CONT;
+    data.FRM_CODI = this.wfWebseItems.filter(m => m.WEB_CONT == e.data.WEB_CONT)[0].WEB_CODI;
+    data.MET_CONT = e.data.MWE_CONT;
+    data.MXA_SECU = this.actionStageSelected.WF_MXACC.length == 0 ? 1 : Math.max.apply(Math, this.actionStageSelected.WF_MXACC.map(function (o) { return o.MXA_SECU; })) + 1;
+    data.AUD_ESTA = "A";
+    data.MXA_CLAS = "W";
+    this.actionStageSelected.WF_MXACC.push(data);
+    this.treeView.instance.beginUpdate();
+    this.treeView.items.filter(i => i.parentId == this.actionStageSelected.ACC_CONT)[0].items = [{ parentId: 0, expanded: true, items: [], text: data.FRM_CODI }]
+    this.treeView.instance.endUpdate();
+    this.popupNewServicePopupVisible = false;
+  }
+
+
+  loadDataForm(e){
+    
+    this.formStageProperties.instance = e.component;
+    this.formStageProperties.instance.updateData(this.stagePropesrtiesItems);
+  }
+
 
 }

@@ -10,6 +10,6 @@ MXA_SECU:number;
 AUD_ESTA:string;
 AUD_USUA:string;
 AUD_UFAC:Date;
-MXA_CLAS:number;
+MXA_CLAS:string;
 
 }

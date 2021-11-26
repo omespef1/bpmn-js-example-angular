@@ -21,10 +21,12 @@ export class Wf_Accio {
         this.DPL_CONT=0;
         this.FRM_CODI=0;
         this.CAM_CODI=0;
-        this.ACC_DEFE=0;
+        this.ACC_DEFE="";
         this.ACC_COND=0;
         this.ACC_VALO=0;
         this.WF_CONAC=[];
+        this.WF_MXACC=[];     
+        this.expanded=true;
 
     }
 EMP_CODI:number;
@@ -42,9 +44,10 @@ PLA_CONT:number;
 DPL_CONT:number;
 FRM_CODI:number;
 CAM_CODI:number;
-ACC_DEFE:number;
+ACC_DEFE:string;
 ACC_COND:number;
 ACC_VALO:number;
 WF_CONAC: Wf_Conac[];
 WF_MXACC:Wf_Mxacc[];
+expanded:boolean;
 }

@@ -23,5 +23,7 @@ DGR_CONT:number;
 PSW_TABL:string;
 PSW_CAMP:string;
 PSW_NCAM:string;
+PME_TIPO:string;
+PME_CLAS:string;
 
 }

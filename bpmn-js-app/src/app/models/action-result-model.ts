@@ -7,4 +7,14 @@ export class ActionResult<T> {
     Result: T;
     FileName: string;
   }
+
+  export class Action<T> {
+    isSuccessful: boolean;
+    isError: boolean;
+    errorMessage: string;
+    messages: string;
+    token: string;
+    result: T;
+    fileName: string;
+  }
   

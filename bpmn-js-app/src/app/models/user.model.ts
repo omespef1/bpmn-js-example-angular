@@ -54,7 +54,7 @@ export class Session extends AuthModel {
 
 export class Company {
   // Código de empresa
-  code: string;
+  code: number;
   // Nombre de la empresa
   name: string;
   // Tema asignado a la empresa

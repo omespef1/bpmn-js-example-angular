@@ -6,7 +6,7 @@ export class Wf_Webse {
     AUD_UFAC: Date;
     EMP_CODI: number;
     WEB_CONT: number;
-    WEB_CODI: number;
+    WEB_CODI: string;
     WEB_RUTA: string;
     WEB_ESPA: string;
     WEB_DESC: string;

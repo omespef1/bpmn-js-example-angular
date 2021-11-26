@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ConfigService } from './config.service';
 import { ActionResult } from '../models/action-result-model';
 import { Wf_Flujo } from '../models/bpm/Wf_Flujo';
+import { Diagram } from '../models/bpm/diagram';
 
 const CONTROLLER = 'WF_FLUJO'
 @Injectable({
@@ -12,7 +13,7 @@ export class WorkflowService {
 
   constructor(private http: HttpClient, private configService: ConfigService) { }
 
-  getWorkFlowByCompany(company: string) {
+  getWorkFlowByCompany(company: number) {
     return this.http.get<ActionResult<any[]>>(`${this.configService.config.apiRwfEditrUrl}/${CONTROLLER}?emp_codi=${company}`);
   }
   getWorkFlowById(company: number, id: number) {
@@ -20,7 +21,7 @@ export class WorkflowService {
     headers.append("Access-Control-Allow-Origin", "*");
 
 
-    return this.http.get<ActionResult<string>>(`${this.configService.config.apiRwfEditrUrl}/${CONTROLLER}/GetById?companyCode=${company}&consecutive=${id}`, { headers });
+    return this.http.get<ActionResult<Diagram>>(`${this.configService.config.apiRwfEditrUrl}/${CONTROLLER}/GetById?companyCode=${company}&consecutive=${id}`, { headers });
   }
 
 

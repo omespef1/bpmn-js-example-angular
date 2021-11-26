@@ -3,15 +3,17 @@ import { DiagramComponent } from './pages/diagram/diagram.component';
 import { NgModule } from '@angular/core';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AppComponent } from './app.component';
-import { DxButtonGroupModule, DxDataGridModule, DxDropDownBoxModule, DxFileUploaderModule, DxFormModule, DxLookupModule, DxPopupModule, DxScrollViewModule, DxSelectBoxModule, DxTabsModule, DxTextBoxModule, DxToolbarModule, DxTreeListModule, DxTreeViewModule } from 'devextreme-angular';
+import { DxAccordionModule, DxButtonGroupModule, DxButtonModule, DxDataGridModule, DxDropDownBoxModule, DxFileUploaderModule, DxFormModule, DxLookupModule, DxPopupModule, DxScrollViewModule, DxSelectBoxModule, DxSpeedDialActionModule, DxTabsModule, DxTextBoxModule, DxToolbarModule, DxTreeListModule, DxTreeViewModule } from 'devextreme-angular';
 import { AppRoutingModule } from './app.routing.module';
 import { DxoPositionModule } from 'devextreme-angular/ui/nested';
 import { AuthInterceptorService } from './interceptors/interceptor';
+import { BrowserComponent } from './pages/browser/browser.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    DiagramComponent
+    DiagramComponent,
+    BrowserComponent
   ],
   imports: [
     BrowserModule,
@@ -31,7 +33,10 @@ import { AuthInterceptorService } from './interceptors/interceptor';
     DxFileUploaderModule,
     DxTreeListModule,
     DxTreeViewModule,
-    DxButtonGroupModule
+    DxButtonGroupModule,
+    DxButtonModule,
+    DxSpeedDialActionModule,
+    DxAccordionModule
   ],
   providers:[
     {

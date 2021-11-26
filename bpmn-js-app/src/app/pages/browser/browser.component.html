@@ -1,0 +1,387 @@
+
+<div class="container-fluid">
+    <dx-toolbar>
+        <dxi-item [visible]="mode=='form'" widget="dxButton" [options]="buttonBack" location="before">
+        </dxi-item>
+        <dxi-item widget="dxButton" [options]="buttonInitProcess" location="before">
+        </dxi-item>
+        <dxi-item widget="dxButton" [options]="buttonStartTask" location="before">
+        </dxi-item>
+        <dxi-item widget="dxButton" [options]="buttonUpdateTask" location="before">
+        </dxi-item>
+        <dxi-item widget="dxButton" [options]="buttonDetailProcess" location="before">
+        </dxi-item>
+        <!-- <dxi-item widget="dxButton" [options]="buttonDelegateProcess" location="before">
+        </dxi-item> -->
+    
+    
+       
+    </dx-toolbar>
+</div>
+
+<div *ngIf="mode=='grid'" class="container-fluid">
+
+
+  
+
+
+    <div class="mt-50">
+       
+
+     
+            <dx-data-grid #576ba8ec469d410983e23ea3f702abd9 (onRowDblClick)="goModeForm($event)"  keyExpr="CAS_CONT" [headerFilter]="{visible:true}" [groupPanel]="{visible:true}" [showBorders]="true" [showRowLines]="true" [showColumnHeaders]="true" [showRowLines]="true"
+            [showColumnLines]="true" 
+            [allowColumnResizing]="true" [dataSource]="wfSeguiGridSource"
+            [columnAutoWidth]="true" [noDataText]="'Sin tareas'" [title]="'Tareas'" [loadPanel]="{enabled:true}" [hoverStateEnabled]="true" >
+            <dxi-column type="buttons">
+                <dxi-button text="Ver"  [onClick]="goModeForm" icon="activefolder" hint="Ver">
+                </dxi-button>               
+              </dxi-column>
+            <dxi-column dataField="EMP_CODI" caption="Empresa" dataType="number" ></dxi-column>
+            <dxi-column dataField="SEG_FREC" caption="Recibido" dataType="date"></dxi-column>
+            <dxi-column dataField="SEG_HREC" [cellTemplate]="'hourTemplateReceived'" caption="Hora" dataType="date"></dxi-column>
+            <dxi-column dataField="SEG_PRIO" caption="Prioridad" ></dxi-column>
+            <dxi-column dataField="CAS_DESC" caption="Descripción"></dxi-column>
+            <dxi-column dataField="USU_NOMB" [cellTemplate]="'USU_NOMBTemplate'" caption="De"></dxi-column>
+            <dxi-column dataField="CAS_CONT" caption="Caso" [cellTemplate]="'CAS_CONTTemplate'" dataType="number"></dxi-column>
+            <dxi-column dataField="SEG_CONT" caption="Secuencia" dataType="number"></dxi-column>
+            <dxi-column dataField="SEG_SUBJ" caption="Nombre de la tarea"></dxi-column>
+            <dxi-column dataField="SEG_FLIM" caption="Fecha límite" dataType="date"></dxi-column>
+            <dxi-column dataField="SEG_HLIM" caption="Hora límite"  [cellTemplate]="'hourTemplateLimit'" dataType="date"></dxi-column>
+            <dxi-column dataField="TER_CODA" caption="Tercero"></dxi-column>
+            <dxi-column dataField="TER_NOCO" caption="Nombre tercero"></dxi-column>
+           
+            <dxo-filter-row [visible]="true"></dxo-filter-row>
+            <dxo-search-panel [visible]="true"></dxo-search-panel>
+            <dxo-summary>
+                <dxi-group-item
+                    summaryType="count">
+                </dxi-group-item>
+            </dxo-summary>
+            <div *dxTemplate="let data of 'hourTemplateReceived'">  
+                <i class="dx-icon-clock"></i> &nbsp;    {{data.displayValue | date:'hh:mm aa'}}  
+            </div>  
+            <div *dxTemplate="let data of 'hourTemplateLimit'">  
+                <i class="dx-icon-clock"></i> &nbsp;      {{data.displayValue | date:'hh:mm aa'}}  
+            </div>  
+            <div *dxTemplate="let data of 'USU_NOMBTemplate'">  
+                <i class="dx-icon-user"></i> &nbsp; {{data.displayValue }}
+            </div>  
+            <div *dxTemplate="let data of 'CAS_CONTTemplate'">  
+                <i class="dx-icon-variable"></i> &nbsp; {{data.displayValue }}
+            </div>  
+            </dx-data-grid>
+ 
+    </div>
+   
+</div>
+
+<div *ngIf="mode=='form'" class="container-fluid mt-30">
+
+  <div class="row">
+    <div class="col col-lg-9">
+      <dx-form #formStageProperties  [formData]="segui" [colCount]="4" labelLocation="top">
+        <dxi-item itemType="tabbed" [colSpan]="4" [colCount]="4">
+          <dxi-tab title="Recibido" icon="box">
+            <dxi-item dataField="SEG_COME" [colCount]="4" [editorType]="'dxTextArea'">
+                <dxo-label text="Asunto"></dxo-label>
+              </dxi-item>
+          </dxi-tab>        
+        <dxi-tab title="A enviar" icon="email">
+          <dxi-item dataField="SEG_COME_TO" [colCount]="4" [editorType]="'dxTextArea'">
+            <dxo-label text="Comentarios para el siguiente ejecutor"></dxo-label>
+          </dxi-item>
+        </dxi-tab>
+        <dxi-tab title="Docunmentos del caso" icon="doc">
+        </dxi-tab>
+        <dxi-tab title="Seguimiento" icon="find">
+            <div class="form">
+              
+                <div class="dx-field">
+                
+                  <dx-button
+                                  stylingMode="outlined"
+                                  [hint]="'Ver seguimiento'"       
+                                  text="Ver seguimiento"                     
+                                  type="normal"
+                                  [width]="180"
+                                  [icon]="'columnchooser'"   
+                                  (onClick)="showPopUpEditor()"                    
+                                  >
+                              </dx-button>
+                              <dx-button
+                              stylingMode="outlined"   
+                              text="Delegar"    
+                              [hint]="'Delegar'"                     
+                              type="normal"
+                              [width]="120"
+                              [icon]="'exportselected'"    
+                              (onClick)="showPopUpDelegatesTree()">
+                          </dx-button>
+                          <dx-button
+                          stylingMode="outlined"   
+                          text="Seguientes Etapas"    
+                          [hint]="'Siguientes Etapas'"                     
+                          type="normal"
+                          [width]="120"
+                          [icon]="'chevrondoubleright'"                        
+                         >
+                      </dx-button>
+                      <dx-button 
+                      stylingMode="outlined"   
+                      text="Comentarios Anteriores"    
+                      [hint]="'Comentarios Anteriores'"                     
+                      type="normal"
+                      [width]="120"
+                      [icon]="'parentfolder'"                        
+                      (onClick)="showPopuopTracing()"  >
+                  </dx-button>
+                        
+                            </div>
+            </div>
+        </dxi-tab>
+        <dxi-tab title="Instructivo" icon="verticalaligncenter">
+            <dx-form [formData]="stage" [colCount]="4" labelLocation="top">
+              <dxi-item [disabled]="true"  dataField="ETA_INST"  [colSpan]="4" [editorType]="'dxTextArea'">       
+                <dxo-label text="Intrucciones Etapa"></dxo-label>     
+              </dxi-item>
+            </dx-form>
+         
+        </dxi-tab>
+        <dxi-tab title="Propiedades" icon="preferences">
+          <dxi-item [disabled]="true" itemType="group" caption="Etapa" colCount="3">
+            <dxi-item name="ETA_PRIO" colCount="1">
+              <dxo-label text="Prioridad"></dxo-label>
+              <div *dxTemplate>
+                  <dx-lookup
+                      [(value)]="stage.ETA_PRIO" [dataSource] ="[ {id:'M',text:'Media' } , {id:'A',text:'Alta'}, {id:'B',text:'Baja'} ]" [displayExpr]="'text'" valueExpr="id">
+                  </dx-lookup>
+              </div>
+          </dxi-item>
+          </dxi-item>
+          <dxi-item [disabled]="true" itemType="group" caption="Seguimiento" colCount="3">
+           
+          <dxi-item dataField="SEG_FLIM"  [editorType]="'dxDateBox'">
+            <dxo-label text="Fecha límite"></dxo-label>
+          </dxi-item>
+          <dxi-item dataField="SEG_FREC"  [editorType]="'dxDateBox'">
+            <dxo-label text="Fecha Generación"></dxo-label>
+          </dxi-item>
+          </dxi-item>
+          <dxi-item [disabled]="true" itemType="group" caption="Seguimiento Anterior" colCount="3">
+            <dxi-item name="SEG_SUBJ" colCount="1">
+              <dxo-label text="Nombre"></dxo-label>
+              <div *dxTemplate>
+                <dx-text-box
+                [(value)]="tracingPrev.SEG_SUBJ">
+            </dx-text-box>
+              </div>
+          </dxi-item>
+          </dxi-item>
+          <dxi-item [disabled]="true" itemType="group" caption="CASO" colCount="3">
+            <dxi-item name="CAS_DESC" colCount="1">
+              <dxo-label text="Nombre"></dxo-label>
+              <div *dxTemplate>
+                <dx-text-box
+                [(value)]="followUp.CAS_DESC">
+            </dx-text-box>
+              </div>
+          </dxi-item>
+          <dxi-item name="CAS_FLIM" colCount="1" [editorType]="'dxDateBox'">
+            <dxo-label text="Fecha Límite"></dxo-label>
+            <div *dxTemplate>
+              <dx-text-box
+              [(value)]="followUp.CAS_FLIM">
+          </dx-text-box>
+            </div>
+        </dxi-item>
+        <dxi-item name="USU_NOMB" colCount="1" [editorType]="'dxDateBox'">
+          <dxo-label text="Originador"></dxo-label>
+          <div *dxTemplate>
+            <dx-text-box
+            [(value)]="followUp.USU_NOMB">
+        </dx-text-box>
+          </div>
+      </dxi-item>
+          </dxi-item>
+          <!-- <dx-form [formData]="stage"  [colCount]="4"                            
+          >
+        
+          <dxi-item dataField="ETA_PRIO" [colSpan]="4" [editorType]="'dxLookup'" [editorOptions]="{dataSource:[ {id:'M',text:'Media' } , {id:'A',text:'Alta'}, {id:'B',text:'Baja'} ], displayExpr:'text',valueExpr:'id'  }">
+            <dxo-label text="Asunto"></dxo-label>
+          </dxi-item>
+
+        
+        
+        </dx-form> -->
+
+       
+        </dxi-tab>
+        <dxi-tab title="Descripción del caso" icon="columnchooser">
+          <dxi-item name="CAS_DESC" colCount="1" >
+            <dxo-label text="Descripción del caso para el siguiente ejecutor"></dxo-label>
+            <div *dxTemplate>
+              <dx-text-box
+              [(value)]="followUp.CAS_DESC">
+          </dx-text-box>
+            </div>
+        </dxi-item>
+        </dxi-tab>
+        <dxi-tab title="Formularios" icon="copy">
+
+         
+            <div class="container-fluid">
+                <div id="accordion">
+                    <dx-accordion [width]="'100%'"
+                      #accordion
+                      [dataSource]="listForms"
+                      [collapsible]="true"
+                      [multiple]="false"              
+                      [animationDuration]="300"
+                     
+                    >
+                      <div *dxTemplate="let formData of 'title'">
+                        <h1>{{ formData.formCode }}  {{formData.formName}} </h1>
+                      </div>
+                      <div *dxTemplate="let formData of 'item'">
+                    
+                           
+                            <ng-container  *ngIf="mode=='form'">
+                            <iframe *ngIf="formData.urlObserver$ | async as _url" [style]="dimensions" [src]="_url"></iframe>
+                        </ng-container>
+                     
+                     
+                        
+                      </div>
+                    </dx-accordion>
+            </div>
+            </div>
+        </dxi-tab>
+
+
+
+    </dxi-item>
+</dx-form>
+    </div>
+    <div class="col col-lg-3">
+
+      <button type="button" class="btn btn-danger">Devoler</button>
+      <button (click)="nextTracing()" type="button" class="btn btn-success">
+        <i class="bi bi-check-circle"></i>
+     &nbsp;   Enviar</button>
+    </div>
+
+  </div>
+
+ 
+
+
+
+ 
+</div>
+<!-- <dx-speed-dial-action
+  icon="arrowright"
+  label="Enviar"
+  [index]="1"
+>
+
+<dx-speed-dial-action
+  icon="arrowleft"
+  label="Devolver"
+  [index]="1"
+> -->
+
+
+
+
+<!-- Modal de seguimiento -->
+
+<dx-popup #popUpTracing contentTemplate="popup-content" [width]="'70%'" [height]="'auto'" [showTitle]="true" [showCloseButton]="true"
+  title="Comentarios Anteriores" [dragEnabled]="false" [closeOnOutsideClick]="false" 
+  container=".dx-viewport"  [(visible)]="popUpLastCommentsVisible">  
+  <dxo-position at="center" my="center">
+  </dxo-position>
+  <div *dxTemplate="let data of 'popup-content'">    
+    <dx-scroll-view width="100%" height="100%">
+    <dx-data-grid  [dataSource]="historicTracing" 
+      [hoverStateEnabled]="true"  [filterRow]="{ visible: true }"
+      [scrolling]="{ mode: 'infinite' }" height="100%" [columnAutoWidth]="true" [allowColumnResizing]="true"
+    
+  
+   [showBorders]="true" [showColumnLines]="true"
+      [showRowLines]="true" [rowAlternationEnabled]="true">
+      <dxo-scrolling rowRenderingMode="virtual"> </dxo-scrolling>
+      <dxo-paging [pageSize]="10"> </dxo-paging>
+      <dxo-pager
+        [visible]="true"
+       
+        [displayMode]="'compact'"
+ 
+        [showNavigationButtons]="true"
+      >
+      </dxo-pager>
+      <dxi-column dataField="SEG_SUBJ" caption="Seguimiento"></dxi-column>
+      <dxi-column dataField="USU_NOMB" caption="Ejecutor">        
+      </dxi-column>
+      <dxi-column dataField="SEG_COME" caption="Comentarios"></dxi-column>
+    </dx-data-grid>
+    </dx-scroll-view>
+  </div>
+</dx-popup>
+
+
+
+<!-- popup roles -->
+<dx-popup  contentTemplate="popup-content-tree-roles" [width]="'90%'" [height]="'auto'" [showTitle]="true"
+  title="Delegar" [dragEnabled]="false" [closeOnOutsideClick]="false" [showCloseButton]="true"
+  container=".dx-viewport" [(visible)]="popUpDelegateVisible"> 
+
+
+  <div *dxTemplate="let data of 'popup-content-tree-roles'">
+   
+    
+    <!-- <dx-tree-view  #treeView 
+    [items]="sourceRoles"
+    keyExpr="id"
+    displayExpr="text"
+    parentIdExpr="parentId"
+    dataStructure="plain"          
+    [selectionMode]="'single'"
+    >
+    </dx-tree-view> -->
+
+    <dx-tree-view
+    [dataSource]="sourceRoles"
+    dataStructure="plain"
+    keyExpr="id"
+    displayExpr="text"
+    parentIdExpr="parentId">
+</dx-tree-view>
+
+  
+  </div>
+
+</dx-popup>
+
+
+
+
+
+
+
+
+<!-- Modal de flujo -->
+
+<dx-popup #popUpEditor contentTemplate="popup-content-editor" [width]="'50%'" [height]="'auto'" [showTitle]="true" [showCloseButton]="true"
+  title="Visualizador de flujos" [dragEnabled]="false" [closeOnOutsideClick]="false" 
+  container=".dx-viewport"  [(visible)]="popUpEditorVisible">  
+  <dxo-position at="center" my="center">
+  </dxo-position>
+  <div *dxTemplate="let data of 'popup-content-editor'">    
+    <dx-scroll-view width="100%" height="100%">
+      <app-diagram [flu_cont]="segui.FLU_CONT"></app-diagram>
+    </dx-scroll-view>
+  </div>
+</dx-popup>
+
+
