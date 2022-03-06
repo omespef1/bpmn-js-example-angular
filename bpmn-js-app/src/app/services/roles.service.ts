@@ -12,6 +12,6 @@ export class RolesService {
 
 
   getWfRoles(company: number) {
-    return this.http.get<ActionResult<any[]>>(`${this.configService.config.apiRwfEditrUrl}/${CONTROLLER}?emp_codi=${company}`);
+    return this.http.get<ActionResult<any[]>>(`${this.configService.config.apiRwfEdinvUrl}/${CONTROLLER}?emp_codi=${company}`);
   }
 }

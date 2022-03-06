@@ -15,7 +15,7 @@ export class WfEtapaService {
 
 
   getById(companyCode:number, flu_cont:number, eta_cont:number){
-    return  this.http.get<ActionResult<Wf_Etapa>>(`${this.configService.config.apiRwfEditrUrl}/${CONTROLLER}/GetById?emp_codi=${companyCode}&flu_cont=${flu_cont}&eta_cont=${eta_cont}`);
+    return  this.http.get<ActionResult<Wf_Etapa>>(`${this.configService.config.apiRwfEdinvUrl}/${CONTROLLER}/GetById?emp_codi=${companyCode}&flu_cont=${flu_cont}&eta_cont=${eta_cont}`);
   }
 
 }

@@ -15,18 +15,18 @@ export class WfSeguiService {
 
 
   GetAllByUser(user: string) {
-    return this.http.get<ActionResult<any[]>>(`${this.configService.config.apiRwfEditrUrl}/${CONTROLLER}?user=${user}`);
+    return this.http.get<ActionResult<any[]>>(`${this.configService.config.apiRwfEdinvUrl}/${CONTROLLER}?user=${user}`);
   }
 
 
   getById(companyCode: number, cas_cont: number, seg_cont: number) {
 
-    return this.http.get<ActionResult<any>>(`${this.configService.config.apiRwfEditrUrl}/${CONTROLLER}/getById?companyCode=${companyCode}&cas_cont=${cas_cont}&seg_cont=${seg_cont}`);
+    return this.http.get<ActionResult<any>>(`${this.configService.config.apiRwfEdinvUrl}/${CONTROLLER}/getById?companyCode=${companyCode}&cas_cont=${cas_cont}&seg_cont=${seg_cont}`);
   }
 
   getAllByCase(companyCode: number, cas_cont: number) {
 
-    return this.http.get<ActionResult<any>>(`${this.configService.config.apiRwfEditrUrl}/${CONTROLLER}/GetAllByCase?companyCode=${companyCode}&cas_cont=${cas_cont}`);
+    return this.http.get<ActionResult<any>>(`${this.configService.config.apiRwfEdinvUrl}/${CONTROLLER}/GetAllByCase?companyCode=${companyCode}&cas_cont=${cas_cont}`);
   }
 
 
@@ -35,11 +35,18 @@ export class WfSeguiService {
     const httpHeaders = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
-    return this.http.post<ActionResult<any>>(`${this.configService.config.apiRwfEditrUrl}/${CONTROLLER}/tracing`,tracing,{ headers:httpHeaders } );
+    return this.http.post<ActionResult<any>>(`${this.configService.config.apiRwfEdinvUrl}/${CONTROLLER}/tracing`,tracing,{ headers:httpHeaders } );
+  }
+
+  invalidTracing(tracing:Wf_Segui,token:string){
+    const httpHeaders = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+    return this.http.post<ActionResult<any>>(`${this.configService.config.apiRwfEdinvUrl}/${CONTROLLER}/reject`,tracing,{ headers:httpHeaders } );
   }
   
   getRolesForTRee(companyCode: number, flu_cont: number,eta_cont:number) {
 
-    return this.http.get<ActionResult<any>>(`${this.configService.config.apiRwfEditrUrl}/${CONTROLLER}/GetDelegatesForTree?companyCode=${companyCode}&flu_cont=${flu_cont}&eta_cont=${eta_cont}`);
+    return this.http.get<ActionResult<any>>(`${this.configService.config.apiRwfEdinvUrl}/${CONTROLLER}/GetDelegatesForTree?companyCode=${companyCode}&flu_cont=${flu_cont}&eta_cont=${eta_cont}`);
   }
 }

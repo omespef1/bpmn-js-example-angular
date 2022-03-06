@@ -5,10 +5,11 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AppComponent } from './app.component';
 import { DxAccordionModule, DxButtonGroupModule, DxButtonModule, DxDataGridModule, DxDropDownBoxModule, DxFileUploaderModule, DxFormModule, DxLookupModule, DxPopupModule, DxScrollViewModule, DxSelectBoxModule, DxSpeedDialActionModule, DxTabsModule, DxTextBoxModule, DxToolbarModule, DxTreeListModule, DxTreeViewModule } from 'devextreme-angular';
 import { AppRoutingModule } from './app.routing.module';
-import { DxoPositionModule } from 'devextreme-angular/ui/nested';
+import { DxoPagerModule, DxoPagingModule, DxoPositionModule } from 'devextreme-angular/ui/nested';
 import { AuthInterceptorService } from './interceptors/interceptor';
 import { BrowserComponent } from './pages/browser/browser.component';
-
+import { NgxSpinnerModule } from 'ngx-spinner';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 @NgModule({
   declarations: [
     AppComponent,
@@ -36,7 +37,10 @@ import { BrowserComponent } from './pages/browser/browser.component';
     DxButtonGroupModule,
     DxButtonModule,
     DxSpeedDialActionModule,
-    DxAccordionModule
+    DxAccordionModule,
+    DxoPagerModule,DxoPagingModule,
+    NgxSpinnerModule,
+    BrowserAnimationsModule
   ],
   providers:[
     {

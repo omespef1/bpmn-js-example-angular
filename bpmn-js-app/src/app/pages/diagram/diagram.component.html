@@ -1,14 +1,17 @@
 <dx-toolbar [items]="items" *ngIf="flu_cont==0">
 
 </dx-toolbar>
+
 <div class="diagram-parent">
   <!-- <app-diagram [url]="diagramUrl" (importDone)="handleImported($event)"></app-diagram> -->
   <div #ref class="diagram-container">
   </div>
+  
   <div class="import-error" *ngIf="importError">
     <strong>Failed to render diagram: </strong>
     {{ importError.message }}
   </div>
+
 </div>
 <div>
  
@@ -56,7 +59,7 @@
 
 
 <!-- Popup propiedades etapa -->
-<dx-popup [deferRendering]="true" position="center" contentTemplate="popup-content" [maxWidth]="'50%'" [maxHeight]="'90%'"
+<dx-popup #popupStageProperties [deferRendering]="true" position="center" contentTemplate="popup-content" [maxWidth]="'50%'" [maxHeight]="'90%'"
   [resizeEnabled]="true" [showTitle]="true" [title]="stagePropesrtiesItems.ETA_ASUN" [dragEnabled]="false"
   [closeOnOutsideClick]="false" [showCloseButton]="true" container=".dx-viewport"
   [(visible)]="flowStagePropertiesVisible">
@@ -67,7 +70,7 @@
 
   <div *dxTemplate="let data of 'popup-content'">
 
-    <dx-scroll-view width="100%" height="100%">
+    <dx-scroll-view width="100%" height="100%">    
       <dx-form #formStageProperties  [formData]="stagePropesrtiesItems" [colCount]="4" labelLocation="top">
         <dxi-item itemType="tabbed" [colSpan]="4" [colCount]="4">
           <dxi-tab title="General" icon="tips">
@@ -812,10 +815,7 @@
 
 </dx-popup>
 
-<div>
 
-
-</div>
 <!-- popup nuevo formulario -->
 <dx-popup contentTemplate="popup-content-form" [width]="'25%'" [height]="'auto'" [showTitle]="true"
   title="Nuevo flujo de trabajo" [dragEnabled]="false" [closeOnOutsideClick]="false" [showCloseButton]="false"
@@ -1266,6 +1266,29 @@
 </dx-popup>
 
 
+<!-- popup sequence flow  -->
+<dx-popup position="center" contentTemplate="popup-secuence" [maxWidth]="'50%'" [maxHeight]="'90%'"
+  [resizeEnabled]="true" [showTitle]="true" [title]="'Propiedades del conector'" [dragEnabled]="false"
+  [closeOnOutsideClick]="false" [showCloseButton]="true" container=".dx-viewport" [(visible)]="popupSecuenceVisible">
+  <dxi-toolbar-item widget="dxButton" toolbar="bottom" location="after" [options]="setSecuencePropertiesButton">
+  </dxi-toolbar-item>
+  <dxo-position at="center-top" my="center-top">
+  </dxo-position>
+
+  <div *dxTemplate="let data of 'popup-secuence'">
+
+    <dx-scroll-view width="100%" height="100%">
+      <dx-form [formData]="secuenceProperties" [colCount]="2" labelLocation="top">
+        <dxi-item dataField="probability" [label]="{text:'Probabilidad'}" [editorType]="'dxNumberBox'" [editorOptions]="{ min:0, max:100 }"  ></dxi-item>
+        <dxi-item dataField="actionName" [label]="{text:'Acción'}">
+          <dx-lookup [(value)]="secuenceProperties.nameAction"  [dataSource]="secuenceProperties.actionsList"
+            [displayExpr]="'ACC_NOMB'" [valueExpr]="'ACC_NOMB'">
+          </dx-lookup>
+        </dxi-item>
+      </dx-form>
+    </dx-scroll-view>
+  </div>
+</dx-popup>
 
 
 <!-- popup  reporte usuarios -->
@@ -1378,3 +1401,5 @@
   </div>
 
 </dx-popup>
+
+<ngx-spinner></ngx-spinner>

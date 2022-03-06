@@ -11,7 +11,7 @@ export class FormDetailService {
   constructor(private http:HttpClient,private configService:ConfigService) { }
 
   GetDetailFormList(for_cont:number){
-    return  this.http.get<ActionResult<any[]>>(`${this.configService.config.apiRwfEditrUrl}/${CONTROLLER}?for_cont=${for_cont}`);
+    return  this.http.get<ActionResult<any[]>>(`${this.configService.config.apiRwfEdinvUrl}/${CONTROLLER}?for_cont=${for_cont}`);
   }
 
 }

@@ -14,7 +14,7 @@ export class GnMenusService {
 
 
  getByProgramCode(programCode:string){
-    return  this.http.get<ActionResult<any>>(`${this.configService.config.apiRwfEditrUrl}/${CONTROLLER}/GetByProCodi?programCode=${programCode}`);
+    return  this.http.get<ActionResult<any>>(`${this.configService.config.apiRwfEdinvUrl}/${CONTROLLER}/GetByProCodi?programCode=${programCode}`);
   }
 
 }

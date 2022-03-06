@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild, enableProdMode } from '@angular/core';
 import { threadId } from 'worker_threads';
 import { WfSeguiService } from '../../services/wfsegui.service';
 import { Session } from '../../models/user.model';
@@ -21,6 +21,7 @@ import { AlertService } from '../../services/alert.service';
 import { Wf_Segui } from '../../models/bpm/Wf_Segui';
 import { DxAccordionComponent, DxPopupComponent, DxTreeViewComponent } from 'devextreme-angular';
 import DevExpress from 'devextreme';
+import { element } from 'protractor';
 export type GUID = string & { isGuid: true };
 export class Tab {
   id: number;
@@ -43,6 +44,7 @@ export class BrowserComponent implements OnInit {
 
   @ViewChild('treeView', { static: false }) treeView: DxTreeViewComponent;
   sending = false;
+  rejecting=false;
   listForms: IBrowserForm[] = [];
   segui: Wf_Segui = new Wf_Segui();
   mode = "grid";
@@ -54,296 +56,16 @@ export class BrowserComponent implements OnInit {
   buttonStartTask: any;
   buttonUpdateTask: any;
   buttonDetailProcess: any;
+  buttonClosePopUpDelegate:any;
+  buttonSetDelegate:any;
   buttonDelegateProcess: any;
   popUpLastCommentsVisible: boolean;
   popUpDelegateVisible: boolean;
   popUpEditorVisible:boolean;
   historicTracing: any;
   buttonSearch: any;
-  sourceRoles:  any[] = [
-    {
-        "id": "1",
-        "text": "ADMINISTRADOR",
-        "parentId": "0",
-        "type": "R"
-    },
-    {
-        "id": "R09062015080417",
-        "text": "admin",
-        "parentId": "0",
-        "type": "R"
-    },
-    {
-        "id": "R20032015102817",
-        "text": "ADMIN",
-        "parentId": "0",
-        "type": "R"
-    },
-    {
-        "id": "R20072020225930",
-        "text": "admin",
-        "parentId": "0",
-        "type": "R"
-    },
-    {
-        "id": "1030601621",
-        "text": "LUISRG",
-        "parentId": "1",
-        "type": "U"
-    },
-    {
-        "id": "111010",
-        "text": "SEVEN12 SEVEN12",
-        "parentId": "1",
-        "type": "U"
-    },
-    {
-        "id": "1600",
-        "text": "MILENA CASTRO",
-        "parentId": "1",
-        "type": "U"
-    },
-    {
-        "id": "444",
-        "text": "CUARTARAQUEL",
-        "parentId": "1",
-        "type": "U"
-    },
-    {
-        "id": "4448",
-        "text": "MFKLDSHFKDJSF",
-        "parentId": "1",
-        "type": "U"
-    },
-    {
-        "id": "447",
-        "text": "RAQUELN",
-        "parentId": "1",
-        "type": "U"
-    },
-    {
-        "id": "458",
-        "text": "LILO LILO",
-        "parentId": "1",
-        "type": "U"
-    },
-    {
-        "id": "555",
-        "text": "QUINTARAQUEL",
-        "parentId": "1",
-        "type": "U"
-    },
-    {
-        "id": "66",
-        "text": "SEGUNDARAQUEL",
-        "parentId": "1",
-        "type": "U"
-    },
-    {
-        "id": "777",
-        "text": "JJIJIJIJ",
-        "parentId": "1",
-        "type": "U"
-    },
-    {
-        "id": "891222",
-        "text": "ELYANY POS",
-        "parentId": "1",
-        "type": "U"
-    },
-    {
-        "id": "adrianaj",
-        "text": "ADRIANA JAIME",
-        "parentId": "1",
-        "type": "U"
-    },
-    {
-        "id": "ADRIANAS",
-        "text": "ADRIANA SALAS",
-        "parentId": "1",
-        "type": "U"
-    },
-    {
-        "id": "AnaCM",
-        "text": "ANA CASTAÑEDA",
-        "parentId": "1",
-        "type": "U"
-    },
-    {
-        "id": "CapacitacionS",
-        "text": "USUARIO CAPACITACION",
-        "parentId": "1",
-        "type": "U"
-    },
-    {
-        "id": "carlosg",
-        "text": "CARLOS GONZALEZ",
-        "parentId": "1",
-        "type": "U"
-    },
-    {
-        "id": "CARMENL",
-        "text": "CARMEN LOPREZ",
-        "parentId": "1",
-        "type": "U"
-    },
-    {
-        "id": "carom",
-        "text": "CAROLINA M",
-        "parentId": "1",
-        "type": "U"
-    },
-    {
-        "id": "CATALINA",
-        "text": "CATALINA SAAVEDRA",
-        "parentId": "1",
-        "type": "U"
-    },
-    {
-        "id": "cgonzalez",
-        "text": "CARLOS GONZALEZ",
-        "parentId": "1",
-        "type": "U"
-    },
-    {
-        "id": "CLAUDIAS",
-        "text": "CONSULTOR - CLAUDIA SANCHEZ",
-        "parentId": "1",
-        "type": "U"
-    },
-    {
-        "id": "cristinag",
-        "text": "CRISTINA GOMEZ",
-        "parentId": "1",
-        "type": "U"
-    },
-    {
-        "id": "delaq",
-        "text": "ALEXANDER DE LA CUADRA VASQUEZ",
-        "parentId": "1",
-        "type": "U"
-    },
-    {
-        "id": "dianars",
-        "text": "DIANA MARCELA ROMERO SANCHEZ",
-        "parentId": "1",
-        "type": "U"
-    },
-    {
-        "id": "DINAS",
-        "text": "DINA GIOVANNA SUAREZ",
-        "parentId": "1",
-        "type": "U"
-    },
-    {
-        "id": "EDDIEL",
-        "text": "EDDIE LOPEZ",
-        "parentId": "1",
-        "type": "U"
-    },
-    {
-        "id": "erikap",
-        "text": "ERIKA PARDO",
-        "parentId": "1",
-        "type": "U"
-    },
-    {
-        "id": "fabiom",
-        "text": "FABIO ALEXANDER MORALES",
-        "parentId": "1",
-        "type": "U"
-    },
-    {
-        "id": "gonzalop",
-        "text": "GONZALO PINZON",
-        "parentId": "1",
-        "type": "U"
-    },
-    {
-        "id": "HECTORLM",
-        "text": "HECTOR LOZANO MORENO",
-        "parentId": "1",
-        "type": "U"
-    },
-    {
-        "id": "jackelineq",
-        "text": "JACKELINE QUINTERO",
-        "parentId": "1",
-        "type": "U"
-    },
-    {
-        "id": "JorgeS",
-        "text": "JORGE ALEXANDER SANABRIA",
-        "parentId": "1",
-        "type": "U"
-    },
-    {
-        "id": "JOTA",
-        "text": "FRANCISCO JAVIER RODRIGUEZ",
-        "parentId": "1",
-        "type": "U"
-    },
-    {
-        "id": "julianv",
-        "text": "JULIAN VALLEJO",
-        "parentId": "1",
-        "type": "U"
-    },
-    {
-        "id": "leonardoc",
-        "text": "LEONARDO CLAVIJO",
-        "parentId": "1",
-        "type": "U"
-    },
-    {
-        "id": "leonardot",
-        "text": "LEONARDO  TOBON",
-        "parentId": "1",
-        "type": "U"
-    },
-    {
-        "id": "LUISRG",
-        "text": "LUIS FELIPE RAMIREZ G.",
-        "parentId": "1",
-        "type": "U"
-    },
-    {
-        "id": "marthat",
-        "text": "MARTHA TOVAR",
-        "parentId": "1",
-        "type": "U"
-    },
-    {
-        "id": "meryp",
-        "text": "MERY PIÑEROS",
-        "parentId": "1",
-        "type": "U"
-    },
-    {
-        "id": "NIDIAH",
-        "text": "NIDIA  HERRERA CAMACHO",
-        "parentId": "1",
-        "type": "U"
-    },
-    {
-        "id": "SEVEN12",
-        "text": "Usuario Admon Seven",
-        "parentId": "1",
-        "type": "U"
-    },
-    {
-        "id": "sevendoc",
-        "text": "SEVEN PRUEBAS WF",
-        "parentId": "1",
-        "type": "U"
-    },
-    {
-        "id": "yider",
-        "text": "YIDER MENDOZA",
-        "parentId": "1",
-        "type": "U"
-    }
-];
+  sourceRoles:  any[] = [];
+   
   @ViewChild('accordion', { static: false }) accordion: DxAccordionComponent;
   buttonBack: any;
   tabs: Tab[] = [
@@ -396,6 +118,23 @@ export class BrowserComponent implements OnInit {
   constructor(private wfSeguiService: WfSeguiService, private wfEtapaService: WfEtapaService, private gnMenusService: GnMenusService,
     private microApplicationService: MicroApplicationsService, private sanitizer: DomSanitizer, private sessionService: SessionService, private alertService: AlertService, private changes:ChangeDetectorRef) {
 
+
+      this.buttonClosePopUpDelegate = {
+        text: "Cerrar",
+        icon: 'remove',
+        onClick: () => {
+          this.popUpDelegateVisible = false;
+        }
+      };
+      this.buttonSetDelegate = {
+        text: "Delegar",
+        icon: 'remove',
+        onClick: () => {
+          this.popUpDelegateVisible = false;
+        }
+      };
+
+      
 
     this.buttonInitProcess = {
 
@@ -632,6 +371,12 @@ export class BrowserComponent implements OnInit {
 
   }
 
+  delegate(e){
+    console.log(e);
+    this.popUpDelegateVisible=false;
+this.alertService.successSweet(`Delegado a ${e.itemData.text}`,'Perfecto!')
+  }
+
 
 
   hidePopUpDelegatesTree() {
@@ -650,6 +395,22 @@ export class BrowserComponent implements OnInit {
       this.sending=false;
       if (resp != null && resp.IsSuccessful) {
         this.alertService.successSweet('Seguimiento terminado!','Perfecto!');
+        this.mode='grid';
+        this.getAllWfSegui();
+      }
+      else {
+
+        this.alertService.errorSweet(resp.ErrorMessage,'Error');
+      }
+    })
+  }
+
+  invalidTracing(){
+    this.rejecting=true;
+    this.wfSeguiService.invalidTracing(this.segui,this.sessionService.session.token).subscribe(resp => {
+      this.rejecting=false;
+      if (resp != null && resp.IsSuccessful) {
+        this.alertService.successSweet('Seguimiento devuelto!','Perfecto!');
         this.mode='grid';
         this.getAllWfSegui();
       }

@@ -16,8 +16,7 @@ import { HttpClient } from '@angular/common/http';
 import { map, switchMap } from 'rxjs/operators';
 import customTranslate from '../../customTranslate/customTranslate';
 import paletteProvider from '../../modules/palette/paletteProvider';
-import BpmnModdle from 'bpmn-moddle';
-const moddle = new BpmnModdle();
+
 /**
  * You may include a different variant of BpmnJS:
  *
@@ -29,7 +28,7 @@ import * as BpmnJS from 'bpmn-js/dist/bpmn-modeler.production.min.js';
 
 import { BehaviorSubject, from, Observable, Subscription, throwError } from 'rxjs';
 import { Wf_Etapa } from 'src/app/models/bpm/Wf_Etapa';
-import { DxDataGridComponent, DxDropDownBoxComponent, DxFormComponent, DxSelectBoxComponent, DxTextBoxComponent, DxTreeViewComponent } from 'devextreme-angular';
+import { DxDataGridComponent, DxDropDownBoxComponent, DxFormComponent, DxSelectBoxComponent, DxTextBoxComponent, DxTreeViewComponent, DxPopupComponent } from 'devextreme-angular';
 import { SessionService } from 'src/app/services/session.service';
 import { ConfigService } from 'src/app/services/config.service';
 import { WorkflowService } from '../../services/workflow.service';
@@ -70,6 +69,9 @@ import { Wf_Mxacc } from '../../models/bpm/Wf_Mxacc';
 import DevExpress from 'devextreme';
 import { element } from 'protractor';
 import { threadId } from 'worker_threads';
+import { NgxSpinnerService } from 'ngx-spinner';
+import { DiagramModel, Children, SecuenceForm } from '../../models/bpm/diagram';
+import { getBusinessObject } from 'bpmn-js/lib/util/ModelUtil';
 const UPLOAD_URL = "Upload"
 @Component({
   selector: 'app-diagram',
@@ -78,6 +80,7 @@ const UPLOAD_URL = "Upload"
 })
 export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy, OnInit {
   fileAllowedExtensions: string[] = [];
+  allowSaving = false;
   SESSION_ID = uuidv4();
   stagePropesrtiesItems: Wf_Etapa = new Wf_Etapa();
   @ViewChild('dropDownBoxWorflowList', { static: false }) dropDownBoxWorflowList: DxSelectBoxComponent;
@@ -89,7 +92,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
   @ViewChild("dropDownBoxaec8150b") dropdownNewSubProcess: DxDropDownBoxComponent;
   @ViewChild("dropDownBoxfbd32e41") dropdownWfWebse: DxDropDownBoxComponent;
   @ViewChild("dropDownBoxfbd32e42") dropdownWfWebseAction: DxDropDownBoxComponent;
-  @ViewChild('formStageProperties',{static:true}) formStageProperties: DxFormComponent;
+  @ViewChild('formStageProperties',{static:false}) formStageProperties: DxFormComponent;
+  @ViewChild('popupStageProperties',{static:true}) popupStageProperties: DxPopupComponent;
+  
   @Input() flu_cont:number=0;
 
   elementSelected: any;
@@ -115,6 +120,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
   buttonSetTypeField: any;
   buttonNewActionVisible: any;
   setNewSubprocessButton: any;
+  setSecuencePropertiesButton:any;
   setNewAssignamentButton: any;
   setNewDestinyMailUser: any;
   popupActionsVisibleButton: any;
@@ -165,6 +171,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
   actionsPopupVisible = false;
   actionsWebServicePopupVisible = false;
   popupProcessVisible = false;
+  popupSecuenceVisible=false;
+  secuenceProperties:SecuenceForm = new SecuenceForm();
   newDelegatedStageVisible = false;
   popupUrepoVisible = false;
   newFollowStageVisible = false;
@@ -238,7 +246,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
         icon: 'save', text: 'Guardar', onClick: () => {
 
           this.saveXml();
-        }
+        },
       }
     },
     {
@@ -267,7 +275,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
     private formDetailService: FormDetailService, private stageFrmasService: StageFrmasService,
     private wfPlantService: WfPlantService, private wfWebseService: WfWebseService,
     private wfPmetoService: WfpmetoService, private gnCcaleService: GnCcaleService, private sessionService: SessionService,
-    private alertService: AlertService, private changeDetectorRef: ChangeDetectorRef) {
+    private alertService: AlertService, private changeDetectorRef: ChangeDetectorRef,private spinner: NgxSpinnerService) {
 
 
 
@@ -275,7 +283,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
     try {
 
 
-      this.companyCode = this.session.session.selectedCompany.code;
+      // this.companyCode = this.session.session.selectedCompany.code;
+       this.companyCode = 1;
       this.showPopUpTemplate = this.showPopUpTemplate.bind(this);
 
       var customTranslateModule = {
@@ -322,30 +331,37 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
         // the element was changed by the user
       });
       this.bpmnJS.on('element.dblclick', (event) => {
+        let canvas = this.bpmnJS.get('canvas').getRootElement();
+        console.log(event);
+        debugger;
         // Se limpia el elemento asociado a las etapas
         this.stagePropesrtiesItems = new Wf_Etapa();
         switch (event.element.type) {
           case 'bpmn:SequenceFlow':
+            this.elementSelected = event;
+            this.getGateWayOriginFromSecuence(event.element);
             break;
           case "bpmn:Process":
             this.popupProcessVisible = true;
             break;
           case 'bpmn:SubProcess':
-            this.newSubprocessVisible = true;
             this.elementSelected = event;
+            this.newSubprocessVisible = true;
+           
             break;
           case 'bpmn:StartEvent':
             if (event.element.businessObject.eventDefinitions != undefined &&
               event.element.businessObject.eventDefinitions.length > 0) {
               if (event.element.businessObject.eventDefinitions[0].type == "bpmn:MessageEventDefinition" || event.element.businessObject.eventDefinitions[0].$type) {
                 this.loadPropertiesPanel(event);
-                break;
+               
               }
-            }
+            }     
+            break;      
           case 'bpmn:EndEvent':
             break;
           default:
-            this.loadPropertiesPanel(event)
+            this.loadPropertiesPanel(event);
             break;
         }
         
@@ -357,6 +373,14 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
         console.log(event);
         this.buildNewStage(event);
       });
+      
+
+      this.eventBus.on('commandStack.changed', (event) => {
+        console.log(event,'Elemento modificado');
+       
+      });
+
+
 
 
       this.closeButtonNewWorkFlowWindow = {
@@ -445,7 +469,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
         text: "Cerrar",
         icon: 'remove',
         onClick: () => {
-          this.newDelegatedStageVisible = false;
+          this.newFollowStageVisible = false;
         }
       };
       this.closeButtonNewFrmas = {
@@ -459,6 +483,15 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
       this.openButtonOptions = {
         text: "Abrir",
         icon: 'folder',
+        onClick: () => {
+          this.flowListpopupVisible = false;
+        }
+
+      };
+
+      this.closeButtonOptions = {
+        text: "Cerrar",
+        icon: 'close',
         onClick: () => {
           this.flowListpopupVisible = false;
         }
@@ -525,6 +558,34 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
           this.elementSelected.element.WF_ETAPA = new Wf_Etapa();
           this.elementSelected.element.WF_ETAPA.ETA_ASUN = this.buildAsun(this.elementSelected);
           this.elementSelected.element.WF_ETAPA.FLU_COND = this.newSubprocess.flu_cont;
+        }
+
+      };
+
+
+      this.setSecuencePropertiesButton = {
+        text: "Aceptar",
+        icon: 'check',
+        onClick: () => {
+
+          this.popupSecuenceVisible = false;
+         
+
+          // this.bpmnJS.updateProperties(this.elementSelected.element, {name: this.secuenceProperties.nameAction, id: "new-name"});
+      //     var canvas = this.bpmnJS._viewers.drd.get('canvas'),
+      //     modeling = this.bpmnJS._viewers.drd.get('modeling');
+  
+      // modeling.updateProperties({
+      //   element: canvas.getRootElement(),
+      //   properties: {
+      //     name: 'Foo',
+      //     id: 'foo'
+      //   }
+      // });
+          // this.elementSelected.element.businessObject.name = this.secuenceProperties.nameAction;       
+          
+          const bo = getBusinessObject(this.elementSelected.element);
+bo.name = this.secuenceProperties.nameAction;  
         }
 
       };
@@ -661,12 +722,20 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
   }
 
   loadPropertiesPanel(event) {
+    
     console.log(event);  
     this.elementSelected = event;  
     this.flowStagePropertiesVisible = true;
+    // this.popupStageProperties.instance.beginUpdate();
     
+
     this.stagePropesrtiesItems = event.element.WF_ETAPA;
-    //  this.formStageProperties.instance.updateData(this.stagePropesrtiesItems);
+    
+    // this.formStageProperties.instance.beginUpdate();
+    // this.formStageProperties.instance.endUpdate();
+    // this.popupStageProperties.instance.endUpdate();
+    
+   
   }
 
   closePopupStageProperties() {
@@ -697,11 +766,11 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
   async ngOnInit() {
     
     try {
-      if (this.sessionService.session == undefined) {
+      // if (this.sessionService.session == undefined) {
 
-        throw new Error("Acceso no autorizado");
+      //   throw new Error("Acceso no autorizado");
 
-      }
+      // }
 
       //  await this.configService.getAppConfig();
       this.getWorkflowList();
@@ -768,9 +837,11 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
   }
 
   getFormFrmas() {
+    this.spinner.show();
     this.stageFrmasService.getWfFrmas(this.workflowSelected.FOR_CONT).subscribe(resp => {
       if (resp.IsSuccessful && resp.Result != null) {
         this.wfFormasList = resp.Result;
+        this.spinner.hide();
       }
     })
   }
@@ -871,11 +942,15 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
   }
 
   loadFlow(id) {
+    this.spinner.show();
     this.WorkflowService.getWorkFlowById(this.companyCode, id).subscribe(resp => {
       if (resp.IsSuccessful && resp.Result != null) {
+
         // this.workflowSelected = resp.Result;
         this.buildXml(resp.Result.xml);
         this.workflowSelected = resp.Result.flow;
+        this.spinner.hide();
+        this.allowSaving=true;
         // this.WorkflowService.buildXml();
       }
     })
@@ -958,8 +1033,11 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
       this.WorkflowService.setWorkFlow(xml, rootElement, this.workflowSelected).subscribe(resp => {
         console.log(resp);
         if (resp.Result != null && resp.IsSuccessful) {
-          notify('Flujo creado correctamente', 'success', 5000);
+         this.alertService.successSweet('Flujo creado correctamente','Perfecto!')
         }
+       else {
+         this.alertService.errorSweet(resp.ErrorMessage,'Error');
+       }
       })
     });
   }
@@ -1068,16 +1146,23 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
 
 
   buildNewStage(event) {
-
-      if(this.editionMode=="POST")
+    debugger;
     event.element.WF_ETAPA = new Wf_Etapa();
-    event.element.WF_ETAPA.ETA_ASUN = this.buildAsun(event);
-    event.element.businessObject.name = event.element.WF_ETAPA.ETA_ASUN;
+      if(this.editionMode=="POST"){
+      
+        let subject =this.buildAsun(event);
+        event.element.WF_ETAPA.ETA_ASUN = subject;
+        event.element.businessObject.name = event.element.WF_ETAPA.ETA_ASUN;
+      }
+
+   
+  
+   
     if(this.editionMode=="GET"){
-      let nameStage:string = event.element.id;
-      
-      
-      event.element.WF_ETAPA = this.workflowSelected.WF_ETAPAS.filter(e=>e.ETA_CONT == Number(nameStage.split('_')[3]));    
+     
+      let nameStage:string = event.element.id;     
+      debugger;      
+      event.element.WF_ETAPA = this.workflowSelected.WF_ETAPA.filter(e=>e.ETA_CONT == Number(nameStage.split('_')[3]));    
       event.element.businessObject.name = event.element.WF_ETAPA.ETA_ASUN;
     }
 
@@ -1401,7 +1486,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
 
   addIdParameter(e) {
     let uploadUrl = this.updateQueryStringParameter(
-      `${this.configService.config.apiRwfEditrUrl}${UPLOAD_URL}`,
+      `${this.configService.config.apiRwfEdinvUrl}${UPLOAD_URL}`,
       "uuid",
       this.SESSION_ID
     );
@@ -1592,11 +1677,38 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
   }
 
 
-  loadDataForm(e){
-    
-    this.formStageProperties.instance = e.component;
-    this.formStageProperties.instance.updateData(this.stagePropesrtiesItems);
+  getGateWayOriginFromSecuence(element:any){
+   
+
+    let gateWay = element.businessObject.sourceRef;
+    let canvas:DiagramModel = this.bpmnJS.get('canvas').getRootElement();
+    let sourceElement:Children = canvas.children.filter(model=>model.id == gateWay.id)[0];
+    if(sourceElement.type=='bpmn:ExclusiveGateway'){
+
+      let shape:any = canvas.children.filter(shapes=> shapes.id==gateWay.id)[0];
+        if(shape.WF_ETAPA!= undefined){
+          let stage:Wf_Etapa = shape.WF_ETAPA;
+          if(stage != undefined && stage.WF_ACCIO.length>0){
+            this.secuenceProperties.actionsList = stage.WF_ACCIO;
+              this.popupSecuenceVisible = true;
+          }
+        }
+     
+
+
+    }
+
+
+
+
   }
+
+
+  // loadDataForm(e){
+    
+  //   this.formStageProperties.instance = e.component;
+  //   this.formStageProperties.instance.updateData(this.stagePropesrtiesItems);
+  // }
 
 
 }

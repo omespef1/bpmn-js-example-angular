@@ -30,7 +30,7 @@ export class RedirectComponent implements OnInit {
     
     this.sessionService.clean();
     this.activatedRoute.queryParams.subscribe(async (params) => {
-      if (!params.token || !params.companyCode) {
+      if (!params.token || !params.companyCode || !params.mode) {
         this.alertService.error('Los parametros son inválidos');
         return;
       }
@@ -49,9 +49,11 @@ export class RedirectComponent implements OnInit {
           session.token = params.token;
           session.selectedCompany.code = params.companyCode;
           console.log(params.companyCode);
-          this.sessionService.session = response.result;              
+          this.sessionService.session = session;           
           this.changeStyle();
-          
+          if(params.mode=='editor')
+          this.router.navigateByUrl('workflow');
+          if(params.mode=='browser')
           this.router.navigateByUrl('browser');
         },
         (err) => {

@@ -1,5 +1,5 @@
 export class Config {
     apiSecurityUrl:string;
-    apiRwfEditrUrl:string;
+    apiRwfEdinvUrl:string;
     apiMicroapplications:string;
 }

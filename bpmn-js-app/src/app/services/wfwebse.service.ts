@@ -13,6 +13,6 @@ export class WfWebseService {
 
 
   getByCompany(company: number) {
-    return this.http.get<ActionResult<Wf_Webse[]>>(`${this.configService.config.apiRwfEditrUrl}/${CONTROLLER}?emp_codi=${company}`);
+    return this.http.get<ActionResult<Wf_Webse[]>>(`${this.configService.config.apiRwfEdinvUrl}/${CONTROLLER}?emp_codi=${company}`);
   }
 }

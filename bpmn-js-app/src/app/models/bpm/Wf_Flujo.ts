@@ -59,7 +59,7 @@ export class Wf_Flujo {
     FLU_ESTA: string;
     FLU_XMLD: string;
     WF_RUTAS: any[];
-    WF_ETAPAS: Wf_Etapa[];
+    WF_ETAPA: Wf_Etapa[];
     WF_AREAS: any[];
     WF_MEFLU: any[];
     WF_RFLUP: any[];

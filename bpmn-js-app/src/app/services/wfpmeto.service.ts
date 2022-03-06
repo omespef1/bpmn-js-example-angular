@@ -14,6 +14,6 @@ export class WfpmetoService {
 
 
   getByService(emp_codi:number,web_cont:number,mwe_cont:number) {
-    return this.http.get<ActionResult<Wf_Pmeto[]>>(`${this.configService.config.apiRwfEditrUrl}/${CONTROLLER}?emp_codi=${emp_codi}&web_cont=${web_cont}&mwe_cont=${mwe_cont}`);
+    return this.http.get<ActionResult<Wf_Pmeto[]>>(`${this.configService.config.apiRwfEdinvUrl}/${CONTROLLER}?emp_codi=${emp_codi}&web_cont=${web_cont}&mwe_cont=${mwe_cont}`);
   }
 }

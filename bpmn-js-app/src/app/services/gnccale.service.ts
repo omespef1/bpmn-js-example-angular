@@ -14,7 +14,7 @@ export class GnCcaleService {
 
 
   Get(){
-    return  this.http.get<ActionResult<any[]>>(`${this.configService.config.apiRwfEditrUrl}/${CONTROLLER}`);
+    return  this.http.get<ActionResult<any[]>>(`${this.configService.config.apiRwfEdinvUrl}/${CONTROLLER}`);
   }
 
 }
