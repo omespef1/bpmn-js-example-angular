@@ -41,7 +41,7 @@
       </div>
     </dx-select-box> -->
 
-    <dx-data-grid (onRowDblClick)="setFlowSelected($event)" [dataSource]="workflowList" [selection]="{ mode: 'single' }"
+    <dx-data-grid [loadPanel]="{enabled:true}"  #gridOpenExistingFlow (onRowDblClick)="setFlowSelected($event)" [dataSource]="workflowList" [selection]="{ mode: 'single' }"
       [hoverStateEnabled]="true" [paging]="{ enabled: true, pageSize: 10 }" [filterRow]="{ visible: true }"
       [scrolling]="{ mode: 'infinite' }" height="100%" [columnAutoWidth]="true" [allowColumnResizing]="true"
       [selection]="{ mode: 'single' }" [hoverStateEnabled]="true" [paging]="{ enabled: true, pageSize: 10 }"
@@ -59,7 +59,7 @@
 
 
 <!-- Popup propiedades etapa -->
-<dx-popup #popupStageProperties [deferRendering]="true" position="center" contentTemplate="popup-content" [maxWidth]="'50%'" [maxHeight]="'90%'"
+<dx-popup #popupStageProperties  position="center" contentTemplate="popup-content" [maxWidth]="'50%'" [maxHeight]="'90%'"
   [resizeEnabled]="true" [showTitle]="true" [title]="stagePropesrtiesItems.ETA_ASUN" [dragEnabled]="false"
   [closeOnOutsideClick]="false" [showCloseButton]="true" container=".dx-viewport"
   [(visible)]="flowStagePropertiesVisible">
@@ -71,7 +71,7 @@
   <div *dxTemplate="let data of 'popup-content'">
 
     <dx-scroll-view width="100%" height="100%">    
-      <dx-form #formStageProperties  [formData]="stagePropesrtiesItems" [colCount]="4" labelLocation="top">
+      <dx-form #formStageProperties id="formStageProperties" dx-form="formStageProperties"  [formData]="stagePropesrtiesItems" [colCount]="4" labelLocation="top">
         <dxi-item itemType="tabbed" [colSpan]="4" [colCount]="4">
           <dxi-tab title="General" icon="tips">
             <dxi-item itemType="group" [colCount]="4">

@@ -13,7 +13,7 @@ import {
 } from '@angular/core';
 
 import { HttpClient } from '@angular/common/http';
-import { map, switchMap } from 'rxjs/operators';
+import { finalize, map, switchMap } from 'rxjs/operators';
 import customTranslate from '../../customTranslate/customTranslate';
 import paletteProvider from '../../modules/palette/paletteProvider';
 
@@ -85,6 +85,8 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
   stagePropesrtiesItems: Wf_Etapa = new Wf_Etapa();
   @ViewChild('dropDownBoxWorflowList', { static: false }) dropDownBoxWorflowList: DxSelectBoxComponent;
   @ViewChild('3a02429e7f2549c18bed1cb3604a0df1', { static: false }) dataGridParamters: DxDataGridComponent;
+  @ViewChild('gridOpenExistingFlow', { static: false }) dataGridOpenExistingFlow: DxDataGridComponent;
+  
   @ViewChild('30c0287c53f94d66a45d346d06fb4c7', { static: false }) textBoxTypeValue: DxTextBoxComponent;
   @ViewChild('9da4823ac32c42699b4e986344e344c3', { static: false }) textBoxNewAction: DxTextBoxComponent;
   @ViewChild('30c0287c53f94d66a45df346d06fb4c87', { static: false }) treeView: DxTreeViewComponent;
@@ -92,7 +94,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
   @ViewChild("dropDownBoxaec8150b") dropdownNewSubProcess: DxDropDownBoxComponent;
   @ViewChild("dropDownBoxfbd32e41") dropdownWfWebse: DxDropDownBoxComponent;
   @ViewChild("dropDownBoxfbd32e42") dropdownWfWebseAction: DxDropDownBoxComponent;
-  @ViewChild('formStageProperties',{static:false}) formStageProperties: DxFormComponent;
+  @ViewChild('formStageProperties',{static:true}) formStageProperties: DxFormComponent;
   @ViewChild('popupStageProperties',{static:true}) popupStageProperties: DxPopupComponent;
   
   @Input() flu_cont:number=0;
@@ -308,7 +310,9 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
 
       this.bpmnJS.on('import.done', ({ error }) => {
         if (!error) {
-          this.bpmnJS.get('canvas').zoom('fit-viewport');
+          console.log('centrando');
+        
+          this.bpmnJS.get('canvas').zoom('fit-viewport', 'auto');
 
         }
       });
@@ -333,7 +337,7 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
       this.bpmnJS.on('element.dblclick', (event) => {
         let canvas = this.bpmnJS.get('canvas').getRootElement();
         console.log(event);
-        debugger;
+        
         // Se limpia el elemento asociado a las etapas
         this.stagePropesrtiesItems = new Wf_Etapa();
         switch (event.element.type) {
@@ -484,11 +488,14 @@ export class DiagramComponent implements AfterContentInit, OnChanges, OnDestroy,
         text: "Abrir",
         icon: 'folder',
         onClick: () => {
-          this.flowListpopupVisible = false;
+
+        this.openFlowFromGridButton();
+          
         }
 
       };
 
+    
       this.closeButtonOptions = {
         text: "Cerrar",
         icon: 'close',
@@ -721,17 +728,39 @@ bo.name = this.secuenceProperties.nameAction;
 
   }
 
+  openFlowFromGridButton(){
+
+
+    try {
+      this.flowListpopupVisible = false;
+      let  selectedRowsData = [];        
+      selectedRowsData = this.dataGridOpenExistingFlow.instance.getSelectedRowsData();
+      if(selectedRowsData!= undefined && selectedRowsData.length==0)
+       throw new Error('Debe seleccioanar un registro.');
+  
+      this.setFlowSelected({ data: selectedRowsData[0]})
+      
+    } catch (error) {
+      this.alertService.errorSweet(error.message,'Oops')
+    }
+  
+  }
+
+
   loadPropertiesPanel(event) {
     
     console.log(event);  
     this.elementSelected = event;  
-    this.flowStagePropertiesVisible = true;
-    // this.popupStageProperties.instance.beginUpdate();
-    
+     this.stagePropesrtiesItems = event.element.WF_ETAPA[0];
+     console.log(this.stagePropesrtiesItems[0]);
 
-    this.stagePropesrtiesItems = event.element.WF_ETAPA;
-    
+    this.flowStagePropertiesVisible = true;
+        // this.popupStageProperties.instance.beginUpdate();
+  
     // this.formStageProperties.instance.beginUpdate();
+   
+    // this.formStageProperties.formData  = this.stagePropesrtiesItems;
+    
     // this.formStageProperties.instance.endUpdate();
     // this.popupStageProperties.instance.endUpdate();
     
@@ -805,7 +834,7 @@ bo.name = this.secuenceProperties.nameAction;
     })
   }
   getWorkflowList() {
-    this.WorkflowService.getWorkFlowByCompany(this.companyCode).subscribe(resp => {
+    this.WorkflowService.getWorkFlowByCompany(this.companyCode).pipe().subscribe(resp => {
       if (resp.IsSuccessful) {
         this.workflowList = resp.Result;
 
@@ -932,7 +961,7 @@ bo.name = this.secuenceProperties.nameAction;
     this.flowListpopupVisible = true;
   }
 
-  setFlowSelected(e) {
+  setFlowSelected(e) {  
     if (e.data != null) {
       this.flowListpopupVisible = false;
       
@@ -943,15 +972,24 @@ bo.name = this.secuenceProperties.nameAction;
 
   loadFlow(id) {
     this.spinner.show();
-    this.WorkflowService.getWorkFlowById(this.companyCode, id).subscribe(resp => {
+    this.WorkflowService.getWorkFlowById(this.companyCode, id).pipe(finalize(() =>{
+
+      this.spinner.hide();
+    
+    } )) .subscribe(resp => {
       if (resp.IsSuccessful && resp.Result != null) {
 
         // this.workflowSelected = resp.Result;
         this.buildXml(resp.Result.xml);
-        this.workflowSelected = resp.Result.flow;
-        this.spinner.hide();
+        this.workflowSelected = resp.Result.flow;      
         this.allowSaving=true;
         // this.WorkflowService.buildXml();
+      }
+      else {
+
+        this.alertService.errorSweet(resp.ErrorMessage,'Oops');
+        this.initEmpty();
+       
       }
     })
   }
@@ -1027,6 +1065,7 @@ bo.name = this.secuenceProperties.nameAction;
 
   saveXml() {
     const rootElement = this.bpmnJS.get('canvas').getRootElement();
+       
     console.log(rootElement);
     this.bpmnJS.saveXML().then((xml) => {
       console.log(xml);
@@ -1077,7 +1116,9 @@ bo.name = this.secuenceProperties.nameAction;
 
     let xml = xmlData;
     console.log(xml);
+    
     this.bpmnJS.importXML(xml);
+   
     return;
 
   }
@@ -1146,7 +1187,7 @@ bo.name = this.secuenceProperties.nameAction;
 
 
   buildNewStage(event) {
-    debugger;
+    
     event.element.WF_ETAPA = new Wf_Etapa();
       if(this.editionMode=="POST"){
       
@@ -1161,7 +1202,7 @@ bo.name = this.secuenceProperties.nameAction;
     if(this.editionMode=="GET"){
      
       let nameStage:string = event.element.id;     
-      debugger;      
+            
       event.element.WF_ETAPA = this.workflowSelected.WF_ETAPA.filter(e=>e.ETA_CONT == Number(nameStage.split('_')[3]));    
       event.element.businessObject.name = event.element.WF_ETAPA.ETA_ASUN;
     }

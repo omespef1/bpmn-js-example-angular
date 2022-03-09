@@ -237,7 +237,7 @@ export class BrowserComponent implements OnInit {
 
       if (resp.IsSuccessful && resp != null) {
         this.stage = resp.Result;
-        debugger;
+        
        
         this.loadForms(this.stage);
       }
@@ -327,7 +327,7 @@ export class BrowserComponent implements OnInit {
 
     this.wfSeguiService.getById(this.sessionService.session.selectedCompany.code, cas_cont, seg_cont).subscribe(resp => {
       if (resp != null && resp.IsSuccessful) {
-        debugger;
+        
         this.segui = resp.Result;
         this.getTracingPrev();
         this.getHistoricTracing(this.segui.CAS_CONT, this.sessionService.session.selectedCompany.code);
